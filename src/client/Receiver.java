@@ -1,3 +1,5 @@
+package client;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -29,7 +31,7 @@ public class Receiver extends Thread implements Runnable {
                 System.out.println("수량: ");
                 String amount = bufferedReader.readLine();
 
-                // Unit 객체에 저장
+                // client.Unit 객체에 저장
                 Order order = new Order();
                 order.setFood(food);
                 order.setAmount(Integer.parseInt(amount));
