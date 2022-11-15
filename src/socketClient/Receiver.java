@@ -34,6 +34,7 @@ public class Receiver extends Thread implements Runnable {
                     System.out.println("클라이언트 종료");
                     break;
                 }
+                label:
                 switch (packetType) {
                     case Protocol.PT_LOGIN_REQ:
                         System.out.println("로그인을 해주세요");
@@ -52,19 +53,22 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("3. 서비스 종료");
                         main = br.readLine();
 
-                        if (main.equals("1")) {
-                            protocol = new Protocol(Protocol.PT_STOCK_REQ);
-                            protocol.setId(id);
-                            protocol.setClientType("1");
-                            outputStream.write(protocol.getPacket());
-                        } else if (main.equals("2")) {
+                        switch (main) {
+                            case "1":
+                                protocol = new Protocol(Protocol.PT_STOCK_REQ);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                outputStream.write(protocol.getPacket());
+                                break;
+                            case "2":
 
-                        } else if (main.equals("3")) {
-                            System.out.println("서비스를 종료합니다.");
-                            break;
-                        } else {
-                            System.out.println("잘못된 입력입니다.");
-                            break;
+                                break;
+                            case "3":
+                                System.out.println("서비스를 종료합니다.");
+                                break label;
+                            default:
+                                System.out.println("잘못된 입력입니다.");
+                                break label;
                         }
                     case Protocol.PT_STOCK:
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
