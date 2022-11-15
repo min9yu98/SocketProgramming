@@ -4,11 +4,13 @@ import protocol.Protocol;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     String id = null;
-    String pwd = null;
+    String main = null;
     public Receiver(Socket socket) {
         this.socket = socket;
     }
@@ -34,19 +36,40 @@ public class Receiver extends Thread implements Runnable {
                     System.out.println("클라이언트 종료");
                     break;
                 }
+                label:
                 switch (packetType) {
                     case Protocol.PT_LOGIN_REQ:
                         System.out.println("로그인을 해주세요");
                         System.out.print("ID를 입력하세요: ");
                         id = br.readLine();
-                        System.out.print("PWD를 입력하세요: ");
-                        pwd = br.readLine();
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setPWD(pwd);
+                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
-                    case Protocol.PT_STOCK:
+
+                    case Protocol.PT_MAIN:
+                        System.out.println("1. 주문하기");
+                        System.out.println("2. 요청 보내기");
+                        System.out.println("3. 서비스 종료");
+                        main = br.readLine();
+
+                        if (main.equals("1")) {
+                            protocol = new Protocol(Protocol.PT_STOCK_REQ);
+                            protocol.setId(id);
+                            protocol.setClientType("1");
+                            outputStream.write(protocol.getPacket());
+                        } else if (main.equals("2")) {
+                            break;
+                        } else if (main.equals("3")) {
+                            System.out.println("서비스를 종료합니다.");
+                            break;
+                        } else {
+                            System.out.println("잘못된 입력입니다.");
+                            break;
+                        }
+                        break;
+                    case Protocol.PT_STOCK_RES:
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
                         System.out.println("<오늘의 메뉴>");
                         System.out.println(protocol.getMenuName());
@@ -58,6 +81,7 @@ public class Receiver extends Thread implements Runnable {
                         String menuAmount = br.readLine();
                         protocol = new Protocol(Protocol.PT_ORDER);
                         protocol.setId(id);
+                        protocol.setClientType("1");
                         protocol.setOrderFood(menuName);
                         protocol.setOrderAmount(menuAmount);
                         // 가격 정보 얻어오기와 고객의 잔액 정보 추가하기
@@ -65,6 +89,25 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientBalance("9999999");
                         outputStream.write(protocol.getPacket());
                         break;
+                    case Protocol.PT_ORDER_INVALID_MENU:
+                        // 유효하지 않은 주문 번호
+                        System.out.println("잘못된 정보입니다.");
+
+                        break;
+                    case Protocol.PT_ORDER_INVALID_AMOUNT:
+                        // 유효하지 않은 수량
+                        System.out.println("수량이 맞지 않습니다.");
+                        break;
+                    case Protocol.PT_ORDER_INVALID_BALANCE:
+                        // 잔액부족
+                        System.out.println("잔액이 부족합니다.");
+                    case Protocol.PT_ORDER_VALID:
+                        System.out.println("정상 처리 되었습니다.");
+                        protocol = new Protocol(Protocol.PT_SUCCESS);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        break;
+
                 }
             }
         } catch (IOException e) {
