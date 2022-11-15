@@ -14,7 +14,7 @@ public class Protocol implements Serializable {
     public static final int PT_UNDEFINED = -1;   //프로토콜이 지정되어 있지 않을 경우에
     public static final int PT_EXIT = 0;
     public static final int PT_ORDER = 1;
-    public static final int PT_STOCK = 2;
+    public static final int PT_STOCK_RES = 2;
     public static final int PT_STOCK_REQ = 3;
     public static final int PT_LOGIN_REQ = 4;
     public static final int PT_LOGIN_RES = 5;
@@ -48,7 +48,7 @@ public class Protocol implements Serializable {
 
     // 기본 생성자
     public Protocol() {
-        this(PT_STOCK);
+        this(PT_LOGIN_REQ);
     }
 
     // 생성자
@@ -60,13 +60,14 @@ public class Protocol implements Serializable {
     public byte[] getPacket(int protocolType) {
         if(packet == null) {
             switch(protocolType) {
+                case PT_UNDEFINED:
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
                     break;
                 case PT_LOGIN_RES:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
                     break;
-                case PT_STOCK:
+                case PT_STOCK_RES:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE + LEN_STOCK_AMOUNT];
                     break;
                 case PT_ORDER:
