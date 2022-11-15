@@ -15,11 +15,18 @@ public class Protocol implements Serializable {
     public static final int PT_EXIT = 0;
     public static final int PT_ORDER = 1;
     public static final int PT_STOCK = 2;
-    public static final int PT_LOGIN_REQ = 3;
-    public static final int PT_LOGIN_RES = 4;
+    public static final int PT_STOCK_REQ = 3;
+    public static final int PT_LOGIN_REQ = 4;
+    public static final int PT_LOGIN_RES = 5;
+    public static final int PT_MAIN = 6;
+    public static final int PT_NORMAL = 7;
+    public static final int PT_ABNORMAL = 8;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
+
+    // 사용자 판별
+    public static final int LEN_CLIENT_TYPE = 1;
 
     // 로그인
     public static final int LEN_LOGIN_ID = 20;
@@ -57,12 +64,18 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_PROTOCOL_TYPE];
                     break;
                 case PT_LOGIN_RES:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_LOGIN_PWD];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
+                    break;
                 case PT_STOCK:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE + LEN_STOCK_AMOUNT];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE + LEN_STOCK_AMOUNT];
                     break;
                 case PT_ORDER:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + LEN_CLIENT_BALANCE];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + LEN_CLIENT_BALANCE];
+                    break;
+                case PT_MAIN:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
+                case PT_STOCK_REQ:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
             }
         }
         packet[0] = (byte)protocolType;   //packet 바이트배열의 첫번째 방에 프로토콜타입 상수를 셋팅해 놓는다.
@@ -102,24 +115,23 @@ public class Protocol implements Serializable {
         System.arraycopy(buf, 0, packet, 0, packet.length);
     }
 
+    // ClientType
+    public String getClientType() {
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_CLIENT_TYPE).trim();
+    }
+
+    public void setClientType(String type) {
+        System.arraycopy(type.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, type.trim().getBytes().length);
+    }
+
     // ID
-    public String getId(){
+    public String getId() {
         //String(byte[] bytes, int offset, int length)
         return new String(packet, LEN_PROTOCOL_TYPE, LEN_LOGIN_ID).trim();
     }
 
     public void setId(String id){
         System.arraycopy(id.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE, id.trim().getBytes().length);
-    }
-
-    // PWD
-    public String getPWD() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_LOGIN_PWD).trim();
-    }
-
-    public void setPWD(String pwd) {
-        System.arraycopy(pwd.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, pwd.trim().getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + pwd.getBytes().length] = '\0';
     }
 //    // Stock 배열의 자료형
 //    public int getPTStockDT() {
@@ -133,67 +145,67 @@ public class Protocol implements Serializable {
 
     // MenuName
     public String getMenuName() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_STOCK_MENU).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_STOCK_MENU).trim();
     }
 
     public void setMenuName(String menuName) {
-        System.arraycopy(menuName.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, menuName.trim().getBytes().length);
+        System.arraycopy(menuName.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, menuName.trim().getBytes().length);
     }
 
     // MenuPrice
     public String getMenuPrice() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU, LEN_STOCK_PRICE).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU, LEN_STOCK_PRICE).trim();
     }
 
     public void setMenuPrice(String menuPrice) {
-        System.arraycopy(menuPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU, menuPrice.trim().getBytes().length);
+        System.arraycopy(menuPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU, menuPrice.trim().getBytes().length);
     }
 
     // MenuAmount
     public String getMenuAmount() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE, LEN_STOCK_AMOUNT).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE, LEN_STOCK_AMOUNT).trim();
     }
 
     public void setMenuAmount(String menuAmount) {
-        System.arraycopy(menuAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE, menuAmount.trim().getBytes().length);
+        System.arraycopy(menuAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE, menuAmount.trim().getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE + menuAmount.getBytes().length] = '\0';
     }
 
     // OrderFood
     public String getOrderFood() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_ORDER_FOOD).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_ORDER_FOOD).trim();
     }
 
     public void setOrderFood(String orderFood) {
-        System.arraycopy(orderFood.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, orderFood.getBytes().length);
+        System.arraycopy(orderFood.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, orderFood.getBytes().length);
     }
 
     // OrderAmount
     public String getOrderAmount() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_ORDER_FOOD).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD, LEN_ORDER_FOOD).trim();
     }
 
     public void setOrderAmount(String orderAmount) {
-        System.arraycopy(orderAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD, orderAmount.getBytes().length);
+        System.arraycopy(orderAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD, orderAmount.getBytes().length);
     }
 
     // OrderPrice
     public String getOrderPrice() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, LEN_ORDER_PRICE).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, LEN_ORDER_PRICE).trim();
     }
 
     public void setOrderPrice(String orderPrice) {
-        System.arraycopy(orderPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, orderPrice.getBytes().length);
+        System.arraycopy(orderPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, orderPrice.getBytes().length);
     }
 
     // ClientBalance
     public String getClientBalance() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, LEN_CLIENT_BALANCE).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, LEN_CLIENT_BALANCE).trim();
     }
 
     public void setClientBalance(String clientBalance) {
-        System.arraycopy(clientBalance.getBytes().length, 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, clientBalance.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + clientBalance.getBytes().length] = '\0';
+        System.arraycopy(clientBalance.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, clientBalance.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + clientBalance.getBytes().length] = '\0';
     }
 //    public String getPassword(){
 //        //구성으로 보아 패스워드는 byte[] 에서 로그인 아이디 바로 뒷부분에 들어가는 듯 하다.
