@@ -35,6 +35,10 @@ public class Receiver extends Thread implements Runnable {
                 int packetType = buf[0];
                 protocol.setPacket(packetType, buf);
                 switch (packetType) {
+                    case Protocol.PT_UNDEFINED:
+                        System.out.println("비정상적인 유저입니다.");
+                        socket.close();
+                        break;
                     case Protocol.PT_LOGIN_RES:
                         String id = protocol.getId();
                         String pwd = protocol.getPWD();

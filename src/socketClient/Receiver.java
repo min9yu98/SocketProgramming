@@ -40,8 +40,6 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("로그인을 해주세요");
                         System.out.print("ID를 입력하세요: ");
                         id = br.readLine();
-                        System.out.print("PWD를 입력하세요: ");
-                        pwd = br.readLine();
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
                         protocol.setClientType("1");
