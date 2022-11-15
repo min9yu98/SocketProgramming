@@ -4,6 +4,8 @@ import protocol.Protocol;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Receiver extends Thread implements Runnable {
     Socket socket = null;
@@ -45,6 +47,7 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
+
                     case Protocol.PT_MAIN:
                         System.out.println("1. 주문하기");
                         System.out.println("2. 요청 보내기");
@@ -63,11 +66,12 @@ public class Receiver extends Thread implements Runnable {
                                 break;
                             case "3":
                                 System.out.println("서비스를 종료합니다.");
-                                break label;
+                                break;
                             default:
                                 System.out.println("잘못된 입력입니다.");
-                                break label;
+                                break;
                         }
+                        break;
                     case Protocol.PT_STOCK:
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
                         System.out.println("<오늘의 메뉴>");
@@ -88,6 +92,11 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientBalance("9999999");
                         outputStream.write(protocol.getPacket());
                         break;
+                    case Protocol.PT_ORDER_INVALID:
+                        break;
+                    case Protocol.PT_ORDER_VALID:
+                        break;
+
                 }
             }
         } catch (IOException e) {
