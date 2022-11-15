@@ -38,6 +38,18 @@ public class Receiver extends Thread implements Runnable {
                 }
                 label:
                 switch (packetType) {
+                    case Protocol.PT_UNDEFINED:
+                        System.out.println("비정상적인 유저입니다.");
+                        socket.close();
+                        break;
+                    case Protocol.PT_LOGIN_RES:
+                        String id = protocol.getId();
+                        System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
+                        protocol = new Protocol(Protocol.PT_STOCK);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
+                        break;
                     case Protocol.PT_LOGIN_REQ:
                         System.out.println("로그인을 해주세요");
                         System.out.print("ID를 입력하세요: ");
