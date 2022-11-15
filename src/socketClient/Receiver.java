@@ -54,25 +54,22 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("3. 서비스 종료");
                         main = br.readLine();
 
-                        switch (main) {
-                            case "1":
-                                protocol = new Protocol(Protocol.PT_STOCK_REQ);
-                                protocol.setId(id);
-                                protocol.setClientType("1");
-                                outputStream.write(protocol.getPacket());
-                                break;
-                            case "2":
-
-                                break;
-                            case "3":
-                                System.out.println("서비스를 종료합니다.");
-                                break;
-                            default:
-                                System.out.println("잘못된 입력입니다.");
-                                break;
+                        if (main.equals("1")) {
+                            protocol = new Protocol(Protocol.PT_STOCK_REQ);
+                            protocol.setId(id);
+                            protocol.setClientType("1");
+                            outputStream.write(protocol.getPacket());
+                        } else if (main.equals("2")) {
+                            break;
+                        } else if (main.equals("3")) {
+                            System.out.println("서비스를 종료합니다.");
+                            break;
+                        } else {
+                            System.out.println("잘못된 입력입니다.");
+                            break;
                         }
                         break;
-                    case Protocol.PT_STOCK:
+                    case Protocol.PT_STOCK_RES:
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
                         System.out.println("<오늘의 메뉴>");
                         System.out.println(protocol.getMenuName());
@@ -92,9 +89,23 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientBalance("9999999");
                         outputStream.write(protocol.getPacket());
                         break;
-                    case Protocol.PT_ORDER_INVALID:
+                    case Protocol.PT_ORDER_INVALID_MENU:
+                        // 유효하지 않은 주문 번호
+                        System.out.println("잘못된 정보입니다.");
+
                         break;
+                    case Protocol.PT_ORDER_INVALID_AMOUNT:
+                        // 유효하지 않은 수량
+                        System.out.println("수량이 맞지 않습니다.");
+                        break;
+                    case Protocol.PT_ORDER_INVALID_BALANCE:
+                        // 잔액부족
+                        System.out.println("잔액이 부족합니다.");
                     case Protocol.PT_ORDER_VALID:
+                        System.out.println("정상 처리 되었습니다.");
+                        protocol = new Protocol(Protocol.PT_SUCCESS);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
                         break;
 
                 }
