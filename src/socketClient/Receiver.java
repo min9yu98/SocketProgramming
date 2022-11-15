@@ -36,7 +36,6 @@ public class Receiver extends Thread implements Runnable {
                     System.out.println("클라이언트 종료");
                     break;
                 }
-                label:
                 switch (packetType) {
                     case Protocol.PT_UNDEFINED:
                         System.out.println("비정상적인 유저입니다.");

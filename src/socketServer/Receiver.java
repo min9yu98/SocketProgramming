@@ -37,7 +37,6 @@ public class Receiver extends Thread implements Runnable {
                 protocol = new Protocol();
                 byte[] buf = protocol.getPacket();
                 inputStream.read(buf);
-
                 int packetType = buf[0];
                 protocol.setPacket(packetType, buf);
                 switch (packetType) {
@@ -60,6 +59,7 @@ public class Receiver extends Thread implements Runnable {
                         String id = protocol.getId();
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
+                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_STOCK_REQ:

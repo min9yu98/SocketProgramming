@@ -5,7 +5,7 @@ import java.net.Socket;
 public class Client {
     public static void main(String[] args) {
         try {
-            Socket socket = new Socket("10.2.2.3", 1234);
+            Socket socket = new Socket("172.30.27.244", 1234);
             Thread thread = new Receiver(socket);
             thread.start();
         }

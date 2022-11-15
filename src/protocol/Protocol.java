@@ -21,12 +21,16 @@ public class Protocol implements Serializable {
     public static final int PT_MAIN = 6;
     public static final int PT_NORMAL = 7;
     public static final int PT_ABNORMAL = 8;
+    public static final int PT_START_SERVER = 9;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
 
+    // 초기 사이즈
+    public static final int LEN_MAX_SIZE = 1000;
+
     // 사용자 판별
-    public static final int LEN_CLIENT_TYPE = 1;
+    public static final int LEN_CLIENT_TYPE = 2;
 
     // 로그인
     public static final int LEN_LOGIN_ID = 20;
@@ -48,7 +52,7 @@ public class Protocol implements Serializable {
 
     // 기본 생성자
     public Protocol() {
-        this(PT_LOGIN_REQ);
+        this(PT_START_SERVER);
     }
 
     // 생성자
@@ -60,6 +64,9 @@ public class Protocol implements Serializable {
     public byte[] getPacket(int protocolType) {
         if(packet == null) {
             switch(protocolType) {
+                case PT_START_SERVER:
+                    packet = new byte[LEN_MAX_SIZE];
+                    break;
                 case PT_UNDEFINED:
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
@@ -75,6 +82,7 @@ public class Protocol implements Serializable {
                     break;
                 case PT_MAIN:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
+                    break;
                 case PT_STOCK_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
             }
