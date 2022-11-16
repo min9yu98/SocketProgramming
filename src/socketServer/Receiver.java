@@ -102,19 +102,17 @@ public class Receiver extends Thread implements Runnable {
                             int clientBalance = Integer.parseInt(protocol.getClientBalance());
                             List<Integer> tmpAmountList = menu.getAmount();
                             // 재고 부족 시
-                            if (tmpAmountList.get(orderFoodIdx) > orderAmount) {
+                            if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
                                 protocol = new Protocol(Protocol.PT_SHORTAGE_STOCK);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
-                                outputStream.write(protocol.getPacket());
                             }
                             // 잔액 부족
                             else if (orderTotalPrice > clientBalance) {
                                 protocol = new Protocol(Protocol.PT_SHORTAGE_BALANCE);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
-                            }
-                            else {
+                            } else {
                                 tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
                                 menu.setAmount(tmpAmountList);
                                 protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
@@ -124,7 +122,7 @@ public class Receiver extends Thread implements Runnable {
                             }
                         }
                         outputStream.write(protocol.getPacket());
-                        System.out.println("고객의 잔액: " + protocol.getClientBalance());
+                        //System.out.println("고객의 잔액: " + protocol.getClientBalance());
                         break;
                 }
             }
