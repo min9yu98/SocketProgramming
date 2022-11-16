@@ -79,16 +79,17 @@ public class Receiver extends Thread implements Runnable {
 
                         main = br.readLine();
 
-                        if (main.equals("1")) {
+                        if (main.equals("1") || main.equals("3")) {
+                            if (main.equals("3")){
+                                String inputBalance = br.readLine();
+                                balance = Integer.parseInt(inputBalance);
+                            }
                             protocol = new Protocol(Protocol.PT_STOCK_REQ);
                             protocol.setId(id);
                             protocol.setClientType("1");
                             outputStream.write(protocol.getPacket());
                         } else if (main.equals("2")) {
                             break;
-                        } else if (main.equals("3")) {
-                            String inputBalance = br.readLine();
-                            balance = Integer.parseInt(inputBalance);
                         } else if (main.equals("4")) {
                             System.out.println("서비스를 종료합니다.");
                             break;
