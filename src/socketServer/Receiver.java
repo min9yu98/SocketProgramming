@@ -49,14 +49,14 @@ public class Receiver extends Thread implements Runnable {
                             outputStream.write(protocol.getPacket());
                             break;
                         }
-                        clientList.add(id);
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_LOGIN_RES:
-                        String id = protocol.getId();
+                        id = protocol.getId();
+                        clientList.add(id);
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         protocol.setClientType("1");

@@ -68,6 +68,8 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_MAX_SIZE];
                     break;
                 case PT_UNDEFINED:
+                    packet = new byte[LEN_PROTOCOL_TYPE];
+                    break;
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
                     break;
@@ -177,7 +179,7 @@ public class Protocol implements Serializable {
 
     public void setMenuAmount(String menuAmount) {
         System.arraycopy(menuAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE, menuAmount.trim().getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE + menuAmount.getBytes().length] = '\0';
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE + menuAmount.getBytes().length] = '\0';
     }
 
     // OrderFood
