@@ -12,7 +12,7 @@ public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     String id = null;
     String main = null;
-    private int balance;
+    private int balance = 0;
     public Receiver(Socket socket) {
         this.socket = socket;
     }
@@ -73,18 +73,15 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_MAIN:
                         id = protocol.getId();
                         while (true){
-                            System.out.println("1. 주문하기");
-                            System.out.println("2. 요청 보내기");
-                            System.out.println("3. 요금 충전하기");
-                            System.out.println("4. 끝내기");
+                            System.out.println("1. 주문");
+                            System.out.println("2. 요청 전송");
+                            System.out.println("3. 요금 충전");
+                            System.out.println("4. 잔액 조회");
+                            System.out.println("5. 서비스 종료");
 
                             main = br.readLine();
 
-                            if (main.equals("1") || main.equals("3")) {
-                                if (main.equals("3")){
-                                    String inputBalance = br.readLine();
-                                    balance = Integer.parseInt(inputBalance);
-                                }
+                            if (main.equals("1")) {
                                 protocol = new Protocol(Protocol.PT_STOCK_REQ);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
@@ -92,7 +89,15 @@ public class Receiver extends Thread implements Runnable {
                                 break;
                             } else if (main.equals("2")) {
                                 break;
+                            } else if (main.equals("3")) {
+                                System.out.print("충전할 요금을 입력해주세요: ");
+                                String inputBalance = br.readLine();
+                                balance = Integer.parseInt(inputBalance);
                             } else if (main.equals("4")) {
+
+                                System.out.println("잔액: " + balance);
+
+                            } else if (main.equals("5")) {
                                 break;
                             } else {
                                 System.out.println("잘못된 입력입니다.");
@@ -163,7 +168,7 @@ public class Receiver extends Thread implements Runnable {
 
                     case Protocol.PT_SHORTAGE_STOCK:
                         // 수량부족
-                        System.out.println("입력이 수량이 재고보다 많습니다.");
+                        System.out.println("입력 수량이 재고보다 많습니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
                         protocol.setClientType("1");
