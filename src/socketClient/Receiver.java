@@ -5,14 +5,25 @@ import protocol.Protocol;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     String id = null;
     String main = null;
+    private int balance = 100000;
     public Receiver(Socket socket) {
         this.socket = socket;
+    }
+
+    public String[] fromString(String string) {
+        String[] strings = string.replace("[", "").replace("]", "").split(", ");
+        String result[] = new String[strings.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = strings[i];
+        }
+        return strings;
     }
 
     public void run() {
@@ -42,7 +53,7 @@ public class Receiver extends Thread implements Runnable {
                         socket.close();
                         break;
                     case Protocol.PT_LOGIN_RES:
-                        String id = protocol.getId();
+                        id = protocol.getId();
                         System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
                         protocol = new Protocol(Protocol.PT_STOCK_REQ);
                         protocol.setId(id);
@@ -64,6 +75,7 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("1. 주문하기");
                         System.out.println("2. 요청 보내기");
                         System.out.println("3. 서비스 종료");
+
                         main = br.readLine();
 
                         if (main.equals("1")) {
@@ -85,42 +97,76 @@ public class Receiver extends Thread implements Runnable {
                         id = protocol.getId();
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
                         System.out.println("<오늘의 메뉴>");
-                        System.out.println(protocol.getMenuName());
-                        System.out.println(protocol.getMenuAmount());
-                        System.out.println(protocol.getMenuPrice());
-                        System.out.print("주문할 메뉴의 번호를 입력하세요: ");
-                        String menuName = br.readLine();
-                        System.out.print("수량을 입력하세요: ");
-                        String menuAmount = br.readLine();
+                        String[] menuList = fromString(protocol.getMenuName());
+                        String[] amountList = fromString(protocol.getMenuAmount());
+                        String[] priceList = fromString(protocol.getMenuPrice());
+
+                        for (int i = 0; i < menuList.length; i++){
+                            System.out.println((i + 1) + ". 메뉴:" + menuList[i] + " 남은 수량: " + amountList[i] + " 가격: " + priceList[i]);
+                        }
+
+                        // 메뉴 번호 입력 - 잘못입력시 while문 제대로 입력할 때까지
+                        String menuName;
+                        while (true){
+                            System.out.print("주문할 메뉴의 번호를 입력하세요: ");
+                            menuName = br.readLine();
+                            // 메뉴번호 확인
+                            if (0 >= Integer.parseInt(menuName) || menuList.length < Integer.parseInt(menuName)) {
+                                System.out.println("잘못된 주문 번호입니다.");
+                                continue;
+                            }
+                            break;
+                        }
+
+                        // 메뉴 수량 입력 - 잘못입력시 while문 제대로 입력할 때까지
+                        String menuAmount;
+                        while (true){
+                            System.out.print("수량을 입력하세요 (100개 이하로 입력해주세요): ");
+                            menuAmount = br.readLine();
+                            // 수량 확인
+                            if (100 < Integer.parseInt(menuAmount) || 0 >= Integer.parseInt(menuAmount)){
+                                System.out.println("잘못된 수량 입니다.");
+                                continue;
+                            }
+                            break;
+                        }
+
                         protocol = new Protocol(Protocol.PT_ORDER);
                         protocol.setId(id);
                         protocol.setClientType("1");
                         protocol.setOrderFood(menuName);
                         protocol.setOrderAmount(menuAmount);
-                        // 가격 정보 얻어오기와 고객의 잔액 정보 추가하기
-                        protocol.setOrderPrice("1234");
-                        protocol.setClientBalance("9999999");
+                        protocol.setOrderPrice(priceList[Integer.parseInt(menuName) - 1]);
                         outputStream.write(protocol.getPacket());
                         break;
-//                    case Protocol.PT_ORDER_INVALID_MENU:
-//                        // 유효하지 않은 주문 번호
-//                        System.out.println("잘못된 정보입니다.");
-//
-//                        break;
-//                    case Protocol.PT_ORDER_INVALID_AMOUNT:
-//                        // 유효하지 않은 수량
-//                        System.out.println("수량이 맞지 않습니다.");
-//                        break;
-//                    case Protocol.PT_ORDER_INVALID_BALANCE:
-//                        // 잔액부족
-//                        System.out.println("잔액이 부족합니다.");
-//                    case Protocol.PT_ORDER_VALID:
-//                        System.out.println("정상 처리 되었습니다.");
-//                        protocol = new Protocol(Protocol.PT_SUCCESS);
-//                        protocol.setId(id);
-//                        protocol.setClientType("1");
-//                        break;
 
+                    case Protocol.PT_SHORTAGE_BALANCE:
+                        // 잔액부족
+                        System.out.println("잔액이 부족합니다.");
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
+                        break;
+
+                    case Protocol.PT_SHORTAGE_STOCK:
+                        // 수량부족
+                        System.out.println("입력이 수량이 재고보다 많습니다.");
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
+                        break;
+
+                    case Protocol.PT_ORDER_SUCCESS:
+                        // 성공
+                        balance = Integer.parseInt(protocol.getClientBalanceRes());
+                        System.out.println("정상 처리 되었습니다.");
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
+                        break;
                 }
             }
         } catch (IOException e) {
