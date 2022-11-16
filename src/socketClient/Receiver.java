@@ -92,10 +92,11 @@ public class Receiver extends Thread implements Runnable {
                             } else if (main.equals("3")) {
                                 System.out.print("충전할 요금을 입력해주세요: ");
                                 String inputBalance = br.readLine();
-                                balance = Integer.parseInt(inputBalance);
+                                balance += Integer.parseInt(inputBalance);
+                                System.out.println(inputBalance + " 원 충전 되었습니다.\n잔액은 " + balance + " 원 입니다.");
                             } else if (main.equals("4")) {
 
-                                System.out.println("잔액: " + balance);
+                                System.out.println("잔액: " + balance + " 원");
 
                             } else if (main.equals("5")) {
                                 break;
