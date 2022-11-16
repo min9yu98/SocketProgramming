@@ -103,12 +103,14 @@ public class Receiver extends Thread implements Runnable {
                             } else {
                                 System.out.println("잘못된 입력입니다.");
                             }
+                            System.out.println();
                         }
 
                         if (main.equals("4")){
                             socket.close();
                         }
 
+                        System.out.println();
                         break;
                     case Protocol.PT_STOCK_RES:
                         id = protocol.getId();
