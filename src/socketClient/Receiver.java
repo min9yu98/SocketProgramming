@@ -12,6 +12,7 @@ public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     String id = null;
     String main = null;
+    private String request;
     private int balance = 0;
     public Receiver(Socket socket) {
         this.socket = socket;
@@ -88,6 +89,19 @@ public class Receiver extends Thread implements Runnable {
                                 outputStream.write(protocol.getPacket());
                                 break;
                             } else if (main.equals("2")) {
+                                System.out.println("< 요청 사항 >");
+                                System.out.println("1. 휴지가 부족해요!");
+                                System.out.println("2. 물컵이 부족해요!");
+                                System.out.println("3. 식당 청소가 필요해요!");
+
+                                System.out.print("요청 사항 선택: ");
+                                request = br.readLine();
+
+                                protocol = new Protocol(Protocol.PT_SERVICE_REQ);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                protocol.setRequest(request);
+                                outputStream.write(protocol.getPacket());
                                 break;
                             } else if (main.equals("3")) {
                                 System.out.print("충전할 요금을 입력해주세요: ");
@@ -161,6 +175,13 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientBalance(String.valueOf(balance));
                         outputStream.write(protocol.getPacket());
                         break;
+
+                    case Protocol.PT_SERVICE_RES:
+                        System.out.println(protocol.getResponse());
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
 
                     case Protocol.PT_SHORTAGE_BALANCE:
                         // 잔액부족
