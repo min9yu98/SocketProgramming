@@ -152,7 +152,9 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientType("1");
                         protocol.setOrderFood(menuName);
                         protocol.setOrderAmount(menuAmount);
-                        protocol.setOrderPrice(priceList[Integer.parseInt(menuName) - 1]);
+
+                        int total_order = Integer.parseInt(priceList[Integer.parseInt(menuName) - 1]) * Integer.parseInt(menuAmount);
+                        protocol.setOrderPrice(String.valueOf(total_order));
                         protocol.setClientBalance(String.valueOf(balance));
                         outputStream.write(protocol.getPacket());
                         break;
