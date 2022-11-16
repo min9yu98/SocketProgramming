@@ -72,31 +72,37 @@ public class Receiver extends Thread implements Runnable {
 
                     case Protocol.PT_MAIN:
                         id = protocol.getId();
-                        System.out.println("1. 주문하기");
-                        System.out.println("2. 요청 보내기");
-                        System.out.println("3. 요금 충전하기");
-                        System.out.println("4. 끝내기");
+                        while (true){
+                            System.out.println("1. 주문하기");
+                            System.out.println("2. 요청 보내기");
+                            System.out.println("3. 요금 충전하기");
+                            System.out.println("4. 끝내기");
 
-                        main = br.readLine();
+                            main = br.readLine();
 
-                        if (main.equals("1") || main.equals("3")) {
-                            if (main.equals("3")){
-                                String inputBalance = br.readLine();
-                                balance = Integer.parseInt(inputBalance);
+                            if (main.equals("1") || main.equals("3")) {
+                                if (main.equals("3")){
+                                    String inputBalance = br.readLine();
+                                    balance = Integer.parseInt(inputBalance);
+                                }
+                                protocol = new Protocol(Protocol.PT_STOCK_REQ);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                outputStream.write(protocol.getPacket());
+                                break;
+                            } else if (main.equals("2")) {
+                                break;
+                            } else if (main.equals("4")) {
+                                break;
+                            } else {
+                                System.out.println("잘못된 입력입니다.");
                             }
-                            protocol = new Protocol(Protocol.PT_STOCK_REQ);
-                            protocol.setId(id);
-                            protocol.setClientType("1");
-                            outputStream.write(protocol.getPacket());
-                        } else if (main.equals("2")) {
-                            break;
-                        } else if (main.equals("4")) {
-                            System.out.println("서비스를 종료합니다.");
-                            break;
-                        } else {
-                            System.out.println("잘못된 입력입니다.");
-                            break;
                         }
+
+                        if (main.equals("4")){
+                            socket.close();
+                        }
+
                         break;
                     case Protocol.PT_STOCK_RES:
                         id = protocol.getId();
@@ -175,7 +181,8 @@ public class Receiver extends Thread implements Runnable {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
+            System.out.println("서비스가 종료되었습니다.");
         }
     }
 }
