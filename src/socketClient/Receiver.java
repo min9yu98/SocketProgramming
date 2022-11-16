@@ -12,7 +12,7 @@ public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     String id = null;
     String main = null;
-    private int balance = 100000;
+    private int balance;
     public Receiver(Socket socket) {
         this.socket = socket;
     }
@@ -74,7 +74,8 @@ public class Receiver extends Thread implements Runnable {
                         id = protocol.getId();
                         System.out.println("1. 주문하기");
                         System.out.println("2. 요청 보내기");
-                        System.out.println("3. 서비스 종료");
+                        System.out.println("3. 요금 충전하기");
+                        System.out.println("4. 끝내기");
 
                         main = br.readLine();
 
@@ -86,6 +87,9 @@ public class Receiver extends Thread implements Runnable {
                         } else if (main.equals("2")) {
                             break;
                         } else if (main.equals("3")) {
+                            String inputBalance = br.readLine();
+                            balance = Integer.parseInt(inputBalance);
+                        } else if (main.equals("4")) {
                             System.out.println("서비스를 종료합니다.");
                             break;
                         } else {
