@@ -22,6 +22,9 @@ public class Protocol implements Serializable {
     public static final int PT_NORMAL = 7;
     public static final int PT_ABNORMAL = 8;
     public static final int PT_START_SERVER = 9;
+    public static final int PT_ORDER_SUCCESS = 10;
+    public static final int PT_SHORTAGE_STOCK = 12;
+    public static final int PT_SHORTAGE_BALANCE = 13;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
@@ -64,6 +67,15 @@ public class Protocol implements Serializable {
     public byte[] getPacket(int protocolType) {
         if(packet == null) {
             switch(protocolType) {
+                case PT_SHORTAGE_BALANCE:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
+                    break;
+                case PT_SHORTAGE_STOCK:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
+                    break;
+                case PT_ORDER_SUCCESS:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_CLIENT_BALANCE];
+                    break;
                 case PT_START_SERVER:
                     packet = new byte[LEN_MAX_SIZE];
                     break;
@@ -217,6 +229,16 @@ public class Protocol implements Serializable {
     public void setClientBalance(String clientBalance) {
         System.arraycopy(clientBalance.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, clientBalance.getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + clientBalance.getBytes().length] = '\0';
+    }
+
+    // GetClientBalance
+    public String getClientBalanceRes() {
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_CLIENT_BALANCE).trim();
+    }
+
+    public void setClientBalanceRes(String clientBalanceRes) {
+        System.arraycopy(clientBalanceRes.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, clientBalanceRes.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + clientBalanceRes.getBytes().length] = '\0';
     }
 //    public String getPassword(){
 //        //구성으로 보아 패스워드는 byte[] 에서 로그인 아이디 바로 뒷부분에 들어가는 듯 하다.

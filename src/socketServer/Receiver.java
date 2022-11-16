@@ -90,10 +90,40 @@ public class Receiver extends Thread implements Runnable {
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_ORDER:
-                        System.out.println("주문 들어옴");
-                        System.out.println("주문 음식 :" + protocol.getOrderFood());
-                        System.out.println("주문 수량: " + protocol.getOrderAmount());
-                        System.out.println("총 금액: " + protocol.getOrderPrice());
+                        System.out.println("주문 요청 들어옴");
+                        clientType = protocol.getClientType();
+                        id = protocol.getId();
+                        if (clientType.equals("0")) {
+                            protocol = new Protocol(Protocol.PT_UNDEFINED);
+                        } else {
+                            int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;  // 주문 메뉴의 인덱스
+                            int orderAmount = Integer.parseInt(protocol.getOrderAmount());
+                            int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
+                            int clientBalance = Integer.parseInt(protocol.getClientBalance());
+                            List<Integer> tmpAmountList = menu.getAmount();
+                            // 재고 부족 시
+                            if (tmpAmountList.get(orderFoodIdx) > orderAmount) {
+                                protocol = new Protocol(Protocol.PT_SHORTAGE_STOCK);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                outputStream.write(protocol.getPacket());
+                            }
+                            // 잔액 부족
+                            else if (orderTotalPrice > clientBalance) {
+                                protocol = new Protocol(Protocol.PT_SHORTAGE_BALANCE);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                            }
+                            else {
+                                tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
+                                menu.setAmount(tmpAmountList);
+                                protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                protocol.setClientBalanceRes(String.valueOf(clientBalance - orderTotalPrice));
+                            }
+                        }
+                        outputStream.write(protocol.getPacket());
                         System.out.println("고객의 잔액: " + protocol.getClientBalance());
                         break;
                 }
