@@ -27,6 +27,8 @@ public class Protocol implements Serializable {
     public static final int PT_SHORTAGE_BALANCE = 13;
     public static final int PT_SERVICE_REQ = 14;
     public static final int PT_SERVICE_RES = 15;
+    public static final int PT_POINT_REQ = 16;
+    public static final int PT_POINT_RES = 17;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
@@ -45,7 +47,7 @@ public class Protocol implements Serializable {
     public static final int LEN_ORDER_AMOUNT = 20;
     public static final int LEN_ORDER_FOOD = 20;
     public static final int LEN_ORDER_PRICE = 20;
-    public static final int LEN_CLIENT_BALANCE = 20;
+    public static final int LEN_CLIENT_POINT = 20;
 
     // 재고 현황
     public static final int LEN_STOCK_MENU = 50;
@@ -55,6 +57,9 @@ public class Protocol implements Serializable {
     // 서비스 요청
     public static final int LEN_SERVICE_TYPE = 5;
     public static final int LEN_SERVICE_MSG = 40;
+
+    // 포인트 충전
+    public static final int LEN_POINT_MSG = 30;
 
     protected int protocolType;
     private byte[] packet;   //프로토콜과 데이터의 저장공간이 되는 바이트배열
@@ -73,6 +78,12 @@ public class Protocol implements Serializable {
     public byte[] getPacket(int protocolType) {
         if(packet == null) {
             switch(protocolType) {
+                case PT_POINT_RES:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_POINT_MSG];
+                    break;
+                case PT_POINT_REQ:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_CLIENT_POINT];
+                    break;
                 case PT_SERVICE_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_SERVICE_TYPE];
                     break;
@@ -86,7 +97,7 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
                     break;
                 case PT_ORDER_SUCCESS:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_CLIENT_BALANCE];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_CLIENT_POINT];
                     break;
                 case PT_START_SERVER:
                     packet = new byte[LEN_MAX_SIZE];
@@ -104,7 +115,7 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_STOCK_MENU + LEN_STOCK_PRICE + LEN_STOCK_AMOUNT];
                     break;
                 case PT_ORDER:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + LEN_CLIENT_BALANCE];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE];
                     break;
                 case PT_MAIN:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE];
@@ -231,29 +242,20 @@ public class Protocol implements Serializable {
 
     public void setOrderPrice(String orderPrice) {
         System.arraycopy(orderPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, orderPrice.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + orderPrice.getBytes().length] = '\0';
     }
 
-    // ClientBalance
-    public String getClientBalance() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, LEN_CLIENT_BALANCE).trim();
+    // ClientPoint
+    public String getClientPoint() {
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_CLIENT_POINT).trim();
     }
 
-    public void setClientBalance(String clientBalance) {
-        System.arraycopy(clientBalance.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE, clientBalance.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + LEN_ORDER_PRICE + clientBalance.getBytes().length] = '\0';
+    public void setClientPoint(String clientPoint) {
+        System.arraycopy(clientPoint.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, clientPoint.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + clientPoint.getBytes().length] = '\0';
     }
 
-    // GetClientBalance
-    public String getClientBalanceRes() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_CLIENT_BALANCE).trim();
-    }
-
-    public void setClientBalanceRes(String clientBalanceRes) {
-        System.arraycopy(clientBalanceRes.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, clientBalanceRes.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + clientBalanceRes.getBytes().length] = '\0';
-    }
-
-    // 서비스 요청
+    // ServiceType
     public String getServiceType() {
         return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_SERVICE_TYPE).trim();
     }
@@ -263,7 +265,7 @@ public class Protocol implements Serializable {
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + serviceType.getBytes().length] = '\0';
     }
 
-    // 서비스 응답
+    // ServiceMsg
     public String getServiceMsg() {
         return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_SERVICE_MSG).trim();
     }
@@ -271,6 +273,16 @@ public class Protocol implements Serializable {
     public void setServiceMsg(String serviceMsg) {
         System.arraycopy(serviceMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, serviceMsg.getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + serviceMsg.getBytes().length] = '\0';
+    }
+
+    // PointMsg
+    public String getPointMsg() {
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, LEN_POINT_MSG).trim();
+    }
+
+    public void setPointMsg(String pointMsg) {
+        System.arraycopy(pointMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE, pointMsg.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_TYPE + pointMsg.getBytes().length] = '\0';
     }
 //    public String getPassword(){
 //        //구성으로 보아 패스워드는 byte[] 에서 로그인 아이디 바로 뒷부분에 들어가는 듯 하다.
