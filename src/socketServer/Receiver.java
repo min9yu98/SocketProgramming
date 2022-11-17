@@ -16,6 +16,7 @@ public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     Menu menu = null;
     String id;
+    int point;
     HashMap<String, Integer> clientList = new HashMap<String, Integer>();
     public Receiver(Socket socket, Menu menu) {
         this.socket = socket;
@@ -110,12 +111,21 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("포인트 충전 요청 들어옴");
                         id = protocol.getId();
                         int pointReq = Integer.parseInt(protocol.getClientPoint());
-                        int point = clientList.get(id);
+                        point = clientList.get(id);
                         clientList.put(id, point + pointReq);
                         System.out.println(clientList.get(id));
                         protocol = new Protocol(Protocol.PT_POINT_RES);
                         protocol.setId(id);
                         protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
+                        outputStream.write(protocol.getPacket());
+                        break;
+                    case Protocol.PT_POINT_LOOKUP_REQ:
+                        System.out.println("포인트 조회 요청 들어옴");
+                        id = protocol.getId();
+                        point = clientList.get(id);
+                        protocol = new Protocol(Protocol.PT_LOOKUP_RES);
+                        protocol.setId(id);
+                        protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "입니다.");
                         outputStream.write(protocol.getPacket());
                         break;
                 }
