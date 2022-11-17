@@ -88,7 +88,7 @@ public class Receiver extends Thread implements Runnable {
                             menu.setAmount(tmpAmountList);
                             protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
                             protocol.setId(id);
-                            protocol.setClientPoint(String.valueOf(clientPoint));
+                            protocol.setPointMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
                         }
                         outputStream.write(protocol.getPacket());
                         break;
@@ -100,10 +100,10 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setId(id);
                         if(serviceType == 1){
                             // 휴지 없음
-                            protocol.setServiceMsg("[관리자]: " + id + "님, 휴지 채워 드렸습니다!");
+                            protocol.setServiceMsg("[관리자] " + id + "님, 휴지 채워 드렸습니다!");
                         } else if (serviceType == 2) {
                             // 물컵
-                            protocol.setServiceMsg("[관리자]: " + id + "님, 물컵 채워 드렸습니다!");
+                            protocol.setServiceMsg("[관리자] " + id + "님, 물컵 채워 드렸습니다!");
                         }
                         outputStream.write(protocol.getPacket());
                         break;
@@ -125,7 +125,7 @@ public class Receiver extends Thread implements Runnable {
                         point = clientList.get(id);
                         protocol = new Protocol(Protocol.PT_LOOKUP_RES);
                         protocol.setId(id);
-                        protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "입니다.");
+                        protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "point 입니다.");
                         outputStream.write(protocol.getPacket());
                         break;
                 }
