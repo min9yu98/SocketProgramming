@@ -60,7 +60,6 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
                         protocol = new Protocol(Protocol.PT_STOCK_REQ);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -70,7 +69,6 @@ public class Receiver extends Thread implements Runnable {
                         id = br.readLine();
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -88,7 +86,6 @@ public class Receiver extends Thread implements Runnable {
                             if (main.equals("1")) {
                                 protocol = new Protocol(Protocol.PT_STOCK_REQ);
                                 protocol.setId(id);
-                                protocol.setClientType("1");
                                 outputStream.write(protocol.getPacket());
                                 break;
                             } else if (main.equals("2")) {
@@ -108,7 +105,6 @@ public class Receiver extends Thread implements Runnable {
                                 }
                                 protocol = new Protocol(Protocol.PT_SERVICE_REQ);
                                 protocol.setId(id);
-                                protocol.setClientType("1");
                                 protocol.setServiceType(request);
                                 outputStream.write(protocol.getPacket());
                                 break;
@@ -127,16 +123,14 @@ public class Receiver extends Thread implements Runnable {
                                 }
                                 protocol = new Protocol(Protocol.PT_POINT_REQ);
                                 protocol.setId(id);
-                                protocol.setClientType("1");
                                 protocol.setClientPoint(inputPoint);
                                 outputStream.write(protocol.getPacket());
                                 break;
 
                             } else if (main.equals("4")) { // 잔여 포인트 조회
-                                protocol = new Protocol(Protocol.PT_POINT_LOOKUP_REQ);
-                                protocol.setId(id);
-                                protocol.setClientType("1");
-                                outputStream.write(protocol.getPacket());
+//                                protocol = new Protocol(Protocol.PT_POINT_LOOKUP_REQ);
+//                                protocol.setId(id);
+//                                outputStream.write(protocol.getPacket());
                                 break;
 
                             } else if (main.equals("5")) {
@@ -194,7 +188,6 @@ public class Receiver extends Thread implements Runnable {
 
                         protocol = new Protocol(Protocol.PT_ORDER);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         protocol.setOrderFood(menuName);
                         protocol.setOrderAmount(menuAmount);
 
@@ -208,25 +201,22 @@ public class Receiver extends Thread implements Runnable {
 
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
-                    case Protocol.PT_POINT_LOOKUP_RES:
-                        System.out.println("현재 잔여 포인트: " + protocol.getClientPoint());
-
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
-                        protocol.setId(id);
-                        protocol.setClientType("1");
-                        outputStream.write(protocol.getPacket());
-                        break;
+//                    case Protocol.PT_POINT_LOOKUP_RES:
+//                        System.out.println("현재 잔여 포인트: " + protocol.getClientPoint());
+//
+//                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+//                        protocol.setId(id);
+//                        outputStream.write(protocol.getPacket());
+//                        break;
 
                     case Protocol.PT_SERVICE_RES:
                         System.out.println(protocol.getServiceMsg());
 
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -235,7 +225,6 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("잔액이 부족합니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -244,7 +233,6 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("입력 수량이 재고보다 많습니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -255,7 +243,6 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("정상 처리 되었습니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
                 }
