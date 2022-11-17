@@ -249,7 +249,7 @@ public class Protocol implements Serializable {
 
     // PointMsg
     public String getPointMsg() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_POINT_MSG).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_POINT_MSG);
     }
 
     public void setPointMsg(String pointMsg) {
