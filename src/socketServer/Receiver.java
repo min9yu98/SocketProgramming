@@ -138,10 +138,10 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientType("1");
                         if(serviceType == 1){
                             // 휴지 없음
-                            protocol.setServiceMsg(id + "님, 휴지 채워 드렸습니다!");
+                            protocol.setServiceMsg("[관리자]: " + id + "님, 휴지 채워 드렸습니다!");
                         } else if (serviceType == 2) {
                             // 물컵
-                            protocol.setServiceMsg(id + "님, 물컵 채워 드렸습니다");
+                            protocol.setServiceMsg("[관리자]: " + id + "님, 물컵 채워 드렸습니다");
                         }
                         outputStream.write(protocol.getPacket());
                         break;
