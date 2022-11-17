@@ -185,10 +185,12 @@ public class Receiver extends Thread implements Runnable {
 
                     case Protocol.PT_SERVICE_RES:
                         System.out.println(protocol.getServiceMsg());
+
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
                         protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
+                        break;
 
                     case Protocol.PT_SHORTAGE_BALANCE:
                         // 잔액부족
