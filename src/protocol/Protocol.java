@@ -237,7 +237,7 @@ public class Protocol implements Serializable {
 
     // ServiceType
     public String getServiceType() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + , LEN_SERVICE_TYPE).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_SERVICE_TYPE).trim();
     }
 
     public void setServiceType(String serviceType) {
@@ -251,13 +251,13 @@ public class Protocol implements Serializable {
     }
 
     public void setServiceMsg(String serviceMsg) {
-        System.arraycopy(serviceMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + , serviceMsg.getBytes().length);
+        System.arraycopy(serviceMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, serviceMsg.getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + serviceMsg.getBytes().length] = '\0';
     }
 
     // PointMsg
     public String getPointMsg() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + , LEN_POINT_MSG).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_POINT_MSG).trim();
     }
 
     public void setPointMsg(String pointMsg) {
