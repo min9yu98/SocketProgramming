@@ -85,17 +85,15 @@ public class Protocol implements Serializable {
                 case PT_POINT_LOOKUP_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID];
                     break;
+                case PT_POINT_RES:
+                case PT_LOOKUP_RES:
                 case PT_POINT_REQ:
                 case PT_ORDER_SUCCESS:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_POINT];
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
                 case PT_UNDEFINED:
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
-                    break;
-                case PT_POINT_RES:
-                case PT_LOOKUP_RES:
-                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
                 case PT_SERVICE_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_SERVICE_TYPE];
@@ -249,7 +247,7 @@ public class Protocol implements Serializable {
 
     // PointMsg
     public String getPointMsg() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_POINT_MSG);
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_POINT_MSG).trim();
     }
 
     public void setPointMsg(String pointMsg) {
