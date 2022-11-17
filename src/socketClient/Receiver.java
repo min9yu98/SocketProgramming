@@ -201,10 +201,8 @@ public class Receiver extends Thread implements Runnable {
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_ORDER_SUCCESS:
-                        System.out.println(protocol.getPointMsg());
+                        System.out.println(protocol.getSuccesstMsg());
                         // 성공
-                        point = Integer.parseInt(protocol.getClientPoint());
-                        System.out.println("정상 처리 되었습니다.");
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
