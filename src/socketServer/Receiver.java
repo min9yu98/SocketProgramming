@@ -19,6 +19,7 @@ public class Receiver extends Thread implements Runnable {
     String clientType;
     String id;
     List<String> clientList = new ArrayList<>();
+    HashMap<String, Integer> clientPointMap = new HashMap<String, Integer>();
     public Receiver(Socket socket, Menu menu) {
         this.socket = socket;
         this.menu = menu;
@@ -100,7 +101,7 @@ public class Receiver extends Thread implements Runnable {
                             int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;  // 주문 메뉴의 인덱스
                             int orderAmount = Integer.parseInt(protocol.getOrderAmount());
                             int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
-                            int clientBalance = Integer.parseInt(protocol.getClientBalance());
+                            int clientPoint = clientPointMap.get(id);
                             List<Integer> tmpAmountList = menu.getAmount();
                             // 재고 부족 시
                             if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
@@ -109,21 +110,22 @@ public class Receiver extends Thread implements Runnable {
                                 protocol.setClientType("1");
                             }
                             // 잔액 부족
-                            else if (orderTotalPrice > clientBalance) {
+                            else if (orderTotalPrice > clientPoint) {
                                 protocol = new Protocol(Protocol.PT_SHORTAGE_BALANCE);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
                             } else {
                                 tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
+                                clientPointMap.replace(id, clientPoint - orderTotalPrice);
+                                clientPoint = clientPointMap.get(id);
                                 menu.setAmount(tmpAmountList);
                                 protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
-                                protocol.setClientBalanceRes(String.valueOf(clientBalance - orderTotalPrice));
+                                protocol.setClientPoint(String.valueOf(clientPoint));
                             }
                         }
                         outputStream.write(protocol.getPacket());
-                        //System.out.println("고객의 잔액: " + protocol.getClientBalance());
                         break;
                     case Protocol.PT_SERVICE_REQ:
                         System.out.println("서비스 요청 들어옴");
@@ -143,6 +145,21 @@ public class Receiver extends Thread implements Runnable {
                             // 물컵
                             protocol.setServiceMsg("[관리자]: " + id + "님, 물컵 채워 드렸습니다");
                         }
+                        outputStream.write(protocol.getPacket());
+                        break;
+                    case Protocol.PT_POINT_REQ:
+                        System.out.println("포인트 충전 요청 들어옴");
+                        clientType = protocol.getClientType();
+                        id = protocol.getId();
+                        if (clientType.equals("0")) {
+                            protocol = new Protocol(Protocol.PT_UNDEFINED);
+                        }
+                        int pointReq = Integer.parseInt(protocol.getClientPoint());
+                        clientPointMap.put(id, pointReq);
+                        protocol = new Protocol(Protocol.PT_POINT_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
                         outputStream.write(protocol.getPacket());
                         break;
                 }
