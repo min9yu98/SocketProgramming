@@ -30,6 +30,7 @@ public class Protocol implements Serializable {
     public static final int PT_POINT_REQ = 16;
     public static final int PT_POINT_RES = 17;
     public static final int PT_POINT_LOOKUP_REQ = 18;
+    public static final int PT_LOOKUP_RES = 19;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
@@ -81,10 +82,10 @@ public class Protocol implements Serializable {
                 case PT_LOGIN_RES:
                 case PT_MAIN:
                 case PT_STOCK_REQ:
+                case PT_POINT_LOOKUP_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID];
                     break;
                 case PT_POINT_REQ:
-                case PT_POINT_LOOKUP_REQ:
                 case PT_ORDER_SUCCESS:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_CLIENT_POINT];
                     break;
@@ -93,6 +94,7 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_PROTOCOL_TYPE];
                     break;
                 case PT_POINT_RES:
+                case PT_LOOKUP_RES:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
                 case PT_SERVICE_REQ:
