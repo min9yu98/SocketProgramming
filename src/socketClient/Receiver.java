@@ -76,7 +76,7 @@ public class Receiver extends Thread implements Runnable {
                         id = protocol.getId();
                         while (true){
                             System.out.println("1. 주문");
-                            System.out.println("2. 요청 전송");
+                            System.out.println("2. 서비스 요청 전송");
                             System.out.println("3. 포인트 충전");
                             System.out.println("4. 포인트 잔액 조회");
                             System.out.println("5. 서비스 종료");
@@ -90,15 +90,15 @@ public class Receiver extends Thread implements Runnable {
                                 break;
                             } else if (main.equals("2")) {
                                 while (true){
-                                    System.out.println("< 요청 사항 >");
+                                    System.out.println("< 서비스 요청 사항 >");
                                     System.out.println("1. 휴지가 부족해요!");
                                     System.out.println("2. 물컵이 부족해요!");
 
-                                    System.out.print("요청 사항 선택: ");
+                                    System.out.print("서비스 요청 사항 선택: ");
                                     request = br.readLine();
 
                                     if (Integer.parseInt(request) < 1 || Integer.parseInt(request) > 2) {
-                                        System.out.println("잘못된 요청 사항입니다.");
+                                        System.out.println("잘못된 서비스 요청 사항입니다.");
                                         continue;
                                     }
                                     break;
@@ -192,6 +192,7 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setOrderAmount(menuAmount);
 
                         int total_order = Integer.parseInt(priceList[Integer.parseInt(menuName) - 1]) * Integer.parseInt(menuAmount);
+                        System.out.println(total_order);
                         protocol.setOrderPrice(String.valueOf(total_order));
                         outputStream.write(protocol.getPacket());
                         break;
@@ -199,7 +200,7 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_POINT_RES:
                         System.out.println(protocol.getPointMsg());
 
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol = new Protocol(Protocol.PT_MAIN); // 찾았다 시발련
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
@@ -220,7 +221,7 @@ public class Receiver extends Thread implements Runnable {
                         outputStream.write(protocol.getPacket());
                         break;
 
-                    case Protocol.PT_SHORTAGE_BALANCE:
+                    case Protocol.PT_SHORTAGE_POINT:
                         // 잔액부족
                         System.out.println("잔액이 부족합니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
