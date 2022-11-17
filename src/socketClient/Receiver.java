@@ -249,7 +249,7 @@ public class Receiver extends Thread implements Runnable {
                         break;
 
                     case Protocol.PT_ORDER_SUCCESS:
-                        System.out.println(id + " 님의 잔여 포인트: "protocol.getClientPoint() + " 포인트");
+                        System.out.println(id + " 님의 잔여 포인트: " + protocol.getClientPoint() + " 포인트");
                         // 성공
                         point = Integer.parseInt(protocol.getClientPoint());
                         System.out.println("정상 처리 되었습니다.");
