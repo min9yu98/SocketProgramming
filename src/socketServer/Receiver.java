@@ -69,6 +69,7 @@ public class Receiver extends Thread implements Runnable {
                         int orderAmount = Integer.parseInt(protocol.getOrderAmount());
                         int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
                         int clientPoint = clientList.get(id);
+                        System.out.println(clientPoint);
                         List<Integer> tmpAmountList = menu.getAmount();
                         // 재고 부족 시
                         if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
@@ -101,7 +102,7 @@ public class Receiver extends Thread implements Runnable {
                             protocol.setServiceMsg("[관리자]: " + id + "님, 휴지 채워 드렸습니다!");
                         } else if (serviceType == 2) {
                             // 물컵
-                            protocol.setServiceMsg("[관리자]: " + id + "님, 물컵 채워 드렸습니다");
+                            protocol.setServiceMsg("[관리자]: " + id + "님, 물컵 채워 드렸습니다!");
                         }
                         outputStream.write(protocol.getPacket());
                         break;
@@ -109,7 +110,9 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("포인트 충전 요청 들어옴");
                         id = protocol.getId();
                         int pointReq = Integer.parseInt(protocol.getClientPoint());
-                        clientList.put(id, pointReq);
+                        int point = clientList.get(id);
+                        clientList.put(id, point + pointReq);
+                        System.out.println(clientList.get(id));
                         protocol = new Protocol(Protocol.PT_POINT_RES);
                         protocol.setId(id);
                         protocol.setPointMsg(pointReq + "point가 충전되었습니다.");

@@ -40,7 +40,6 @@ public class Protocol implements Serializable {
 
     // 로그인
     public static final int LEN_LOGIN_ID = 20;
-    public static final int LEN_LOGIN_PWD = 20;
 
     // 주문
     public static final int LEN_ORDER_AMOUNT = 20;
@@ -55,10 +54,10 @@ public class Protocol implements Serializable {
 
     // 서비스 요청
     public static final int LEN_SERVICE_TYPE = 5;
-    public static final int LEN_SERVICE_MSG = 40;
+    public static final int LEN_SERVICE_MSG = 100;
 
     // 포인트 충전
-    public static final int LEN_POINT_MSG = 30;
+    public static final int LEN_POINT_MSG = 100;
 
     protected int protocolType;
     private byte[] packet;   //프로토콜과 데이터의 저장공간이 되는 바이트배열
@@ -159,15 +158,6 @@ public class Protocol implements Serializable {
     public void setId(String id) {
         System.arraycopy(id.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE, id.trim().getBytes().length);
     }
-//    // Stock 배열의 자료형
-//    public int getPTStockDT() {
-//        return Integer.parseInt(new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_STOCK_DT).trim());
-//    }
-//
-//    public void setPTStockDT(int PTStockDT) {
-//        String PTStockDT_string = Integer.toString(PTStockDT);
-//        System.arraycopy(PTStockDT_string.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, PTStockDT_string.length());
-//    }
 
     // MenuName
     public String getMenuName() {
@@ -189,12 +179,12 @@ public class Protocol implements Serializable {
 
     // MenuAmount
     public String getMenuAmount() {
-        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + LEN_STOCK_MENU + LEN_STOCK_PRICE, LEN_STOCK_AMOUNT).trim();
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE, LEN_STOCK_AMOUNT).trim();
     }
 
     public void setMenuAmount(String menuAmount) {
         System.arraycopy(menuAmount.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + LEN_STOCK_MENU + LEN_STOCK_PRICE, menuAmount.trim().getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + LEN_STOCK_MENU + LEN_STOCK_PRICE + menuAmount.getBytes().length] = '\0';
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_STOCK_MENU + LEN_STOCK_PRICE + menuAmount.getBytes().length] = '\0';
     }
 
     // OrderFood
@@ -222,7 +212,7 @@ public class Protocol implements Serializable {
 
     public void setOrderPrice(String orderPrice) {
         System.arraycopy(orderPrice.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT, orderPrice.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + orderPrice.getBytes().length] = '\0';
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_ORDER_FOOD + LEN_ORDER_AMOUNT + orderPrice.getBytes().length] = '\0';
     }
 
     // ClientPoint
@@ -232,7 +222,7 @@ public class Protocol implements Serializable {
 
     public void setClientPoint(String clientPoint) {
         System.arraycopy(clientPoint.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, clientPoint.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + clientPoint.getBytes().length] = '\0';
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + clientPoint.getBytes().length] = '\0';
     }
 
     // ServiceType
@@ -242,7 +232,7 @@ public class Protocol implements Serializable {
 
     public void setServiceType(String serviceType) {
         System.arraycopy(serviceType.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, serviceType.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + serviceType.getBytes().length] = '\0';
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  serviceType.getBytes().length] = '\0';
     }
 
     // ServiceMsg
@@ -251,8 +241,8 @@ public class Protocol implements Serializable {
     }
 
     public void setServiceMsg(String serviceMsg) {
-        System.arraycopy(serviceMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, serviceMsg.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + serviceMsg.getBytes().length] = '\0';
+        System.arraycopy(serviceMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, serviceMsg.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + serviceMsg.getBytes().length] = '\0';
     }
 
     // PointMsg
@@ -261,7 +251,7 @@ public class Protocol implements Serializable {
     }
 
     public void setPointMsg(String pointMsg) {
-        System.arraycopy(pointMsg.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, pointMsg.getBytes().length);
-        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID +  + pointMsg.getBytes().length] = '\0';
+        System.arraycopy(pointMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, pointMsg.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + pointMsg.getBytes().length] = '\0';
     }
 }
