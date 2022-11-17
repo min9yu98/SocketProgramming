@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.HashMap;
 
 import static java.lang.System.in;
+import static java.lang.System.out;
 
 public class Receiver extends Thread implements Runnable {
     Socket socket = null;
@@ -123,6 +124,26 @@ public class Receiver extends Thread implements Runnable {
                         }
                         outputStream.write(protocol.getPacket());
                         //System.out.println("고객의 잔액: " + protocol.getClientBalance());
+                        break;
+                    case Protocol.PT_SERVICE_REQ:
+                        System.out.println("서비스 요청 들어옴");
+                        clientType = protocol.getClientType();
+                        id = protocol.getId();
+                        if (clientType.equals("0")) {
+                            protocol = new Protocol(Protocol.PT_UNDEFINED);
+                        }
+                        int serviceType = Integer.parseInt(protocol.getServiceType());
+                        protocol = new Protocol(Protocol.PT_SERVICE_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        if(serviceType == 1){
+                            // 휴지 없음
+                            protocol.setServiceMsg(id + "님, 휴지 채워 드렸습니다!");
+                        } else if (serviceType == 2) {
+                            // 물컵
+                            protocol.setServiceMsg(id + "님, 물컵 채워 드렸습니다");
+                        }
+                        outputStream.write(protocol.getPacket());
                         break;
                 }
             }
