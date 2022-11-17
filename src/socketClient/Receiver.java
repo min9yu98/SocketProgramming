@@ -208,7 +208,7 @@ public class Receiver extends Thread implements Runnable {
 //                    case Protocol.PT_POINT_LOOKUP_RES:
 //                        System.out.println("현재 잔여 포인트: " + protocol.getClientPoint());
 //
-//                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+//                        protocol = new Protocol(Protocol.PT_MAIN);
 //                        protocol.setId(id);
 //                        outputStream.write(protocol.getPacket());
 //                        break;
@@ -216,7 +216,7 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_SERVICE_RES:
                         System.out.println(protocol.getServiceMsg());
 
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
@@ -224,7 +224,7 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_SHORTAGE_POINT:
                         // 잔액부족
                         System.out.println("잔액이 부족합니다.");
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
@@ -232,7 +232,7 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_SHORTAGE_STOCK:
                         // 수량부족
                         System.out.println("입력 수량이 재고보다 많습니다.");
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
@@ -242,7 +242,7 @@ public class Receiver extends Thread implements Runnable {
                         // 성공
                         point = Integer.parseInt(protocol.getClientPoint());
                         System.out.println("정상 처리 되었습니다.");
-                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
