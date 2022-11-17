@@ -89,20 +89,27 @@ public class Receiver extends Thread implements Runnable {
                                 outputStream.write(protocol.getPacket());
                                 break;
                             } else if (main.equals("2")) {
-                                System.out.println("< 요청 사항 >");
-                                System.out.println("1. 휴지가 부족해요!");
-                                System.out.println("2. 물컵이 부족해요!");
-                                System.out.println("3. 식당 청소가 필요해요!");
+                                while (true){
+                                    System.out.println("< 요청 사항 >");
+                                    System.out.println("1. 휴지가 부족해요!");
+                                    System.out.println("2. 물컵이 부족해요!");
 
-                                System.out.print("요청 사항 선택: ");
-                                request = br.readLine();
+                                    System.out.print("요청 사항 선택: ");
+                                    request = br.readLine();
 
+                                    if (Integer.parseInt(request) < 1 || Integer.parseInt(request) > 2) {
+                                        System.out.println("잘못된 요청 사항입니다.");
+                                        continue;
+                                    }
+                                    break;
+                                }
                                 protocol = new Protocol(Protocol.PT_SERVICE_REQ);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
                                 protocol.setServiceType(request);
                                 outputStream.write(protocol.getPacket());
                                 break;
+
                             } else if (main.equals("3")) {
                                 System.out.print("충전할 요금을 입력해주세요: ");
                                 String inputBalance = br.readLine();
