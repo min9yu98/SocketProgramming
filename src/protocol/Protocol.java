@@ -47,6 +47,7 @@ public class Protocol implements Serializable {
     public static final int LEN_ORDER_FOOD = 20;
     public static final int LEN_ORDER_PRICE = 20;
     public static final int LEN_CLIENT_POINT = 20;
+    public static final int LEN_SUCCESS_MSG = 100;
 
     // 재고 현황
     public static final int LEN_STOCK_MENU = 50;
@@ -88,7 +89,6 @@ public class Protocol implements Serializable {
                 case PT_POINT_RES:
                 case PT_LOOKUP_RES:
                 case PT_POINT_REQ:
-                case PT_ORDER_SUCCESS:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
                 case PT_UNDEFINED:
@@ -109,6 +109,9 @@ public class Protocol implements Serializable {
                     break;
                 case PT_START_SERVER:
                     packet = new byte[LEN_MAX_SIZE];
+                    break;
+                case PT_ORDER_SUCCESS:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_SUCCESS_MSG];
                     break;
             }
         }
@@ -253,5 +256,15 @@ public class Protocol implements Serializable {
     public void setPointMsg(String pointMsg) {
         System.arraycopy(pointMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, pointMsg.getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + pointMsg.getBytes().length] = '\0';
+    }
+
+    // SuccessMsg
+    public String getSuccessMsg() {
+        return new String(packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, LEN_SUCCESS_MSG).trim();
+    }
+
+    public void setSuccessMsg(String successMsg) {
+        System.arraycopy(successMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, successMsg.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + successMsg.getBytes().length] = '\0';
     }
 }

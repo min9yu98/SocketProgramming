@@ -88,7 +88,7 @@ public class Receiver extends Thread implements Runnable {
                             menu.setAmount(tmpAmountList);
                             protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
                             protocol.setId(id);
-                            protocol.setPointMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
+                            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
                         }
                         outputStream.write(protocol.getPacket());
                         break;
