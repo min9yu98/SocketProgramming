@@ -13,7 +13,7 @@ public class Receiver extends Thread implements Runnable {
     String id = null;
     String main = null;
     private String request;
-    private int balance = 0;
+    private int point = 0;
     public Receiver(Socket socket) {
         this.socket = socket;
     }
@@ -46,6 +46,7 @@ public class Receiver extends Thread implements Runnable {
                 protocol.setPacket(packetType, buf);  // buf의 값을 protocol에 복사
                 if (packetType == Protocol.PT_EXIT) {
                     System.out.println("클라이언트 종료");
+                    socket.close();
                     break;
                 }
                 switch (packetType) {
@@ -53,6 +54,7 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("비정상적인 유저입니다.");
                         socket.close();
                         break;
+
                     case Protocol.PT_LOGIN_RES:
                         id = protocol.getId();
                         System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
@@ -61,6 +63,7 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
+
                     case Protocol.PT_LOGIN_REQ:
                         System.out.println("로그인을 해주세요");
                         System.out.print("ID를 입력하세요: ");
@@ -76,8 +79,8 @@ public class Receiver extends Thread implements Runnable {
                         while (true){
                             System.out.println("1. 주문");
                             System.out.println("2. 요청 전송");
-                            System.out.println("3. 요금 충전");
-                            System.out.println("4. 잔액 조회");
+                            System.out.println("3. 포인트 충전");
+                            System.out.println("4. 포인트 잔액 조회");
                             System.out.println("5. 서비스 종료");
 
                             main = br.readLine();
@@ -110,14 +113,31 @@ public class Receiver extends Thread implements Runnable {
                                 outputStream.write(protocol.getPacket());
                                 break;
 
-                            } else if (main.equals("3")) {
-                                System.out.print("충전할 요금을 입력해주세요: ");
-                                String inputBalance = br.readLine();
-                                balance += Integer.parseInt(inputBalance);
-                                System.out.println(inputBalance + " 원 충전 되었습니다.\n잔액은 " + balance + " 원 입니다.");
-                            } else if (main.equals("4")) {
+                            } else if (main.equals("3")) { // 포인트 충전
+                                String inputPoint;
+                                while (true) {
+                                    System.out.print("충전할 포인트을 입력해주세요: ");
+                                    inputPoint = br.readLine();
 
-                                System.out.println("잔액: " + balance + " 원");
+                                    if (Integer.parseInt(inputPoint) > 100000) {
+                                        System.out.println("최대 10만원까지 충전 가능합니다.");
+                                        continue;
+                                    }
+                                    break;
+                                }
+                                protocol = new Protocol(Protocol.PT_POINT_REQ);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                protocol.setClientPoint(inputPoint);
+                                outputStream.write(protocol.getPacket());
+                                break;
+
+                            } else if (main.equals("4")) { // 잔여 포인트 조회
+                                protocol = new Protocol(Protocol.PT_POINT_LOOKUP_REQ);
+                                protocol.setId(id);
+                                protocol.setClientType("1");
+                                outputStream.write(protocol.getPacket());
+                                break;
 
                             } else if (main.equals("5")) {
                                 break;
@@ -133,6 +153,7 @@ public class Receiver extends Thread implements Runnable {
 
                         System.out.println();
                         break;
+
                     case Protocol.PT_STOCK_RES:
                         id = protocol.getId();
                         System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
@@ -179,7 +200,24 @@ public class Receiver extends Thread implements Runnable {
 
                         int total_order = Integer.parseInt(priceList[Integer.parseInt(menuName) - 1]) * Integer.parseInt(menuAmount);
                         protocol.setOrderPrice(String.valueOf(total_order));
-                        protocol.setClientBalance(String.valueOf(balance));
+                        outputStream.write(protocol.getPacket());
+                        break;
+
+                    case Protocol.PT_POINT_RES:
+                        System.out.println(protocol.getPointMsg());
+
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
+                        outputStream.write(protocol.getPacket());
+                        break;
+
+                    case Protocol.PT_POINT_LOOKUP_RES:
+                        System.out.println("현재 잔여 포인트: " + protocol.getClientPoint());
+
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
 
@@ -211,8 +249,9 @@ public class Receiver extends Thread implements Runnable {
                         break;
 
                     case Protocol.PT_ORDER_SUCCESS:
+                        System.out.println(id + " 님의 잔여 포인트: "protocol.getClientPoint() + " 포인트");
                         // 성공
-                        balance = Integer.parseInt(protocol.getClientBalanceRes());
+                        point = Integer.parseInt(protocol.getClientPoint());
                         System.out.println("정상 처리 되었습니다.");
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
