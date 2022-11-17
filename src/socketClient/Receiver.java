@@ -100,7 +100,7 @@ public class Receiver extends Thread implements Runnable {
                                 protocol = new Protocol(Protocol.PT_SERVICE_REQ);
                                 protocol.setId(id);
                                 protocol.setClientType("1");
-                                protocol.setRequest(request);
+                                protocol.setServiceType(request);
                                 outputStream.write(protocol.getPacket());
                                 break;
                             } else if (main.equals("3")) {
@@ -177,7 +177,7 @@ public class Receiver extends Thread implements Runnable {
                         break;
 
                     case Protocol.PT_SERVICE_RES:
-                        System.out.println(protocol.getResponse());
+                        System.out.println(protocol.getServiceMsg());
                         protocol = new Protocol(Protocol.PT_LOGIN_RES);
                         protocol.setId(id);
                         protocol.setClientType("1");
