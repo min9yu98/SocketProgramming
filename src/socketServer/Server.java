@@ -50,7 +50,7 @@ public class Server {
                 menu.setFood(menuNameList);
                 menu.setPrice(menuPriceList);
                 menu.setAmount(menuAmountList);
-                System.out.println("메뉴 정보 저장 완료!\n\n\n\n");
+                System.out.println(".\n.\n.\n.\n.\n.\n.\n.\n.\n.\n메뉴 정보 저장 완료!");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
