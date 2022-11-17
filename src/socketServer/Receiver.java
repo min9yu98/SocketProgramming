@@ -15,11 +15,8 @@ import static java.lang.System.out;
 public class Receiver extends Thread implements Runnable {
     Socket socket = null;
     Menu menu = null;
-    //HashMap<String, Integer> clinetMap = new HashMap<String, Integer>();
-    String clientType;
     String id;
-    List<String> clientList = new ArrayList<>();
-    HashMap<String, Integer> clientPointMap = new HashMap<String, Integer>();
+    HashMap<String, Integer> clientList = new HashMap<String, Integer>();
     public Receiver(Socket socket, Menu menu) {
         this.socket = socket;
         this.menu = menu;
@@ -43,101 +40,62 @@ public class Receiver extends Thread implements Runnable {
                 protocol.setPacket(packetType, buf);
                 switch (packetType) {
                     case Protocol.PT_MAIN:
-                        clientType = protocol.getClientType();
                         id = protocol.getId();
-                        // 비정상 사용자라면 소켓 중지
-                        if (clientType.equals("0")) {
-                            protocol = new Protocol(Protocol.PT_UNDEFINED);
-                            outputStream.write(protocol.getPacket());
-                            break;
-                        }
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_LOGIN_RES:
                         id = protocol.getId();
-                        clientList.add(id);
+                        clientList.put(id, 0);
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_STOCK_REQ:
                         System.out.println("메뉴판 조회 요청 들어옴");
-                        clientType = protocol.getClientType();
                         id = protocol.getId();
-                        boolean flag = false;
-                        // 비정상 사용자라면 소켓 중지
-                        if (clientType.equals("0"))
-                            flag = false;
-                        for(String clientId : clientList){
-                            if(clientId.equals(id)){
-                                flag = true;
-                                break;
-                            }
-                        }
-                        // 정상적인 경우
-                        if (flag) {
-                            protocol = new Protocol(Protocol.PT_STOCK_RES);
-                            protocol.setId(id);
-                            protocol.setClientType("1");
-                            protocol.setMenuName(menu.getFood().toString());
-                            protocol.setMenuPrice(menu.getPrice().toString());
-                            protocol.setMenuAmount(menu.getAmount().toString());
-                        } else {
-                            protocol = new Protocol(Protocol.PT_UNDEFINED);
-                        }
+                        protocol = new Protocol(Protocol.PT_STOCK_RES);
+                        protocol.setId(id);
+                        protocol.setMenuName(menu.getFood().toString());
+                        protocol.setMenuPrice(menu.getPrice().toString());
+                        protocol.setMenuAmount(menu.getAmount().toString());
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_ORDER:
                         System.out.println("주문 요청 들어옴");
-                        clientType = protocol.getClientType();
                         id = protocol.getId();
-                        if (clientType.equals("0")) {
-                            protocol = new Protocol(Protocol.PT_UNDEFINED);
+                        int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;  // 주문 메뉴의 인덱스
+                        int orderAmount = Integer.parseInt(protocol.getOrderAmount());
+                        int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
+                        int clientPoint = clientList.get(id);
+                        List<Integer> tmpAmountList = menu.getAmount();
+                        // 재고 부족 시
+                        if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
+                            protocol = new Protocol(Protocol.PT_SHORTAGE_STOCK);
+                            protocol.setId(id);
+                        }
+                        // 잔액 부족
+                        else if (orderTotalPrice > clientPoint) {
+                            protocol = new Protocol(Protocol.PT_SHORTAGE_POINT);
+                            protocol.setId(id);
                         } else {
-                            int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;  // 주문 메뉴의 인덱스
-                            int orderAmount = Integer.parseInt(protocol.getOrderAmount());
-                            int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
-                            int clientPoint = clientPointMap.get(id);
-                            List<Integer> tmpAmountList = menu.getAmount();
-                            // 재고 부족 시
-                            if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
-                                protocol = new Protocol(Protocol.PT_SHORTAGE_STOCK);
-                                protocol.setId(id);
-                                protocol.setClientType("1");
-                            }
-                            // 잔액 부족
-                            else if (orderTotalPrice > clientPoint) {
-                                protocol = new Protocol(Protocol.PT_SHORTAGE_BALANCE);
-                                protocol.setId(id);
-                                protocol.setClientType("1");
-                            } else {
-                                tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
-                                clientPointMap.replace(id, clientPoint - orderTotalPrice);
-                                clientPoint = clientPointMap.get(id);
-                                menu.setAmount(tmpAmountList);
-                                protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
-                                protocol.setId(id);
-                                protocol.setClientType("1");
-                                protocol.setClientPoint(String.valueOf(clientPoint));
-                            }
+                            tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
+                            clientList.replace(id, clientPoint - orderTotalPrice);
+                            clientPoint = clientList.get(id);
+                            menu.setAmount(tmpAmountList);
+                            protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
+                            protocol.setId(id);
+                            protocol.setClientPoint(String.valueOf(clientPoint));
                         }
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_SERVICE_REQ:
                         System.out.println("서비스 요청 들어옴");
-                        clientType = protocol.getClientType();
                         id = protocol.getId();
-                        if (clientType.equals("0")) {
-                            protocol = new Protocol(Protocol.PT_UNDEFINED);
-                        }
                         int serviceType = Integer.parseInt(protocol.getServiceType());
                         protocol = new Protocol(Protocol.PT_SERVICE_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         if(serviceType == 1){
                             // 휴지 없음
                             protocol.setServiceMsg("[관리자]: " + id + "님, 휴지 채워 드렸습니다!");
@@ -149,16 +107,11 @@ public class Receiver extends Thread implements Runnable {
                         break;
                     case Protocol.PT_POINT_REQ:
                         System.out.println("포인트 충전 요청 들어옴");
-                        clientType = protocol.getClientType();
                         id = protocol.getId();
-                        if (clientType.equals("0")) {
-                            protocol = new Protocol(Protocol.PT_UNDEFINED);
-                        }
                         int pointReq = Integer.parseInt(protocol.getClientPoint());
-                        clientPointMap.put(id, pointReq);
+                        clientList.put(id, pointReq);
                         protocol = new Protocol(Protocol.PT_POINT_RES);
                         protocol.setId(id);
-                        protocol.setClientType("1");
                         protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
                         outputStream.write(protocol.getPacket());
                         break;
