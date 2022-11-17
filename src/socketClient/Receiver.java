@@ -173,15 +173,10 @@ public class Receiver extends Thread implements Runnable {
                         protocol.setOrderPrice(String.valueOf(total_order));
                         outputStream.write(protocol.getPacket());
                         break;
+                    case Protocol.PT_LOOKUP_RES:
                     case Protocol.PT_POINT_RES:
                         System.out.println(protocol.getPointMsg());
                         protocol = new Protocol(Protocol.PT_MAIN); // 찾았다 시발련
-                        protocol.setId(id);
-                        outputStream.write(protocol.getPacket());
-                        break;
-                    case Protocol.PT_LOOKUP_RES:
-                        System.out.println(protocol.getClientPoint());
-                        protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
@@ -206,7 +201,7 @@ public class Receiver extends Thread implements Runnable {
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_ORDER_SUCCESS:
-                        System.out.println(id + " 님의 잔여 포인트: " + protocol.getClientPoint() + " 포인트");
+                        System.out.println(protocol.getPointMsg());
                         // 성공
                         point = Integer.parseInt(protocol.getClientPoint());
                         System.out.println("정상 처리 되었습니다.");
