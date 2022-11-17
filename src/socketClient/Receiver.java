@@ -122,6 +122,7 @@ public class Receiver extends Thread implements Runnable {
                                 break;
                             } else if (main.equals("5")) {
                                 socket.close();
+                                break;
                             } else {
                                 System.out.println("잘못된 입력입니다.");
                             }
