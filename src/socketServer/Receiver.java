@@ -13,6 +13,8 @@ import static java.lang.System.in;
 import static java.lang.System.out;
 
 public class Receiver extends Thread implements Runnable {
+    OutputStream outputStream = null;
+    InputStream inputStream = null;
     Socket socket = null;
     Menu menu = null;
     String id;
@@ -23,16 +25,115 @@ public class Receiver extends Thread implements Runnable {
         this.menu = menu;
     }
 
+    public void actionMain(Protocol protocol) throws IOException {
+        id = protocol.getId();
+        protocol = new Protocol(Protocol.PT_MAIN);
+        protocol.setId(id);
+        outputStream.write(protocol.getPacket());
+    }
+    public void actionLoginRes(Protocol protocol) throws IOException {
+        id = protocol.getId();
+        // 중복되는 아이디
+        if (clientList.containsKey(id)) {
+            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
+            protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
+        } else {
+            clientList.put(id, 0);
+            protocol = new Protocol(Protocol.PT_MAIN);
+            protocol.setId(id);
+        }
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionStockReq(Protocol protocol) throws IOException {
+        System.out.println("[메뉴판 조회 요청]");
+        id = protocol.getId();
+        protocol = new Protocol(Protocol.PT_STOCK_RES);
+        protocol.setId(id);
+        protocol.setMenuName(menu.getFood().toString());
+        protocol.setMenuPrice(menu.getPrice().toString());
+        protocol.setMenuAmount(menu.getAmount().toString());
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionOrder(Protocol protocol) throws IOException {
+        System.out.println("[주문 요청]");
+        id = protocol.getId();
+        int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;
+        int orderAmount = Integer.parseInt(protocol.getOrderAmount());
+        int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
+        int clientPoint = clientList.get(id);
+        System.out.println(clientPoint);
+        List<Integer> tmpAmountList = menu.getAmount();
+        // 재고 부족 시
+        if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
+            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
+            protocol.setId(id);
+            protocol.setFailedMsg("[관리자] 재고가 부족합니다.");
+        }
+        // 잔액 부족
+        else if (orderTotalPrice > clientPoint) {
+            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
+            protocol.setId(id);
+            protocol.setFailedMsg("[관리자] 잔여 포인트가 부족합니다.");
+        } else {
+            tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
+            clientList.replace(id, clientPoint - orderTotalPrice);
+            clientPoint = clientList.get(id);
+            menu.setAmount(tmpAmountList);
+            protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
+            protocol.setId(id);
+            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
+        }
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionServiceReq(Protocol protocol) throws IOException {
+        System.out.println("[서비스 요청]");
+        id = protocol.getId();
+        int serviceType = Integer.parseInt(protocol.getServiceType());
+        protocol = new Protocol(Protocol.PT_SERVICE_RES);
+        protocol.setId(id);
+        if(serviceType == 1){
+            // 휴지 없음
+            protocol.setServiceMsg("[관리자] " + id + "님, 휴지 채워 드렸습니다!");
+        } else if (serviceType == 2) {
+            // 물컵
+            protocol.setServiceMsg("[관리자] " + id + "님, 물컵 채워 드렸습니다!");
+        }
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionPointReq(Protocol protocol) throws IOException {
+        System.out.println("[포인트 충전 요청]");
+        id = protocol.getId();
+        int pointReq = Integer.parseInt(protocol.getClientPoint());
+        point = clientList.get(id);
+        clientList.put(id, point + pointReq);
+        System.out.println(clientList.get(id));
+        protocol = new Protocol(Protocol.PT_POINT_RES);
+        protocol.setId(id);
+        protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionPointLookupReq(Protocol protocol) throws IOException {
+        System.out.println("[포인트 조회 요청]");
+        id = protocol.getId();
+        point = clientList.get(id);
+        protocol = new Protocol(Protocol.PT_LOOKUP_RES);
+        protocol.setId(id);
+        protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "point 입니다.");
+        outputStream.write(protocol.getPacket());
+    }
+
     @Override
     public void run() {
         try {
-            OutputStream outputStream = socket.getOutputStream();
-            InputStream inputStream = socket.getInputStream();
-
-            // 처음 접속하는 경우 로그인 요청
+            outputStream = socket.getOutputStream();
+            inputStream = socket.getInputStream();
             Protocol protocol = new Protocol(Protocol.PT_LOGIN_REQ);
             outputStream.write(protocol.getPacket());
-
             while (true) {
                 protocol = new Protocol();
                 byte[] buf = protocol.getPacket();
@@ -41,100 +142,25 @@ public class Receiver extends Thread implements Runnable {
                 protocol.setPacket(packetType, buf);
                 switch (packetType) {
                     case Protocol.PT_MAIN:
-                        id = protocol.getId();
-                        protocol = new Protocol(Protocol.PT_MAIN);
-                        protocol.setId(id);
-                        outputStream.write(protocol.getPacket());
+                        actionMain(protocol);
                         break;
                     case Protocol.PT_LOGIN_RES:
-                        id = protocol.getId();
-                        // 중복되는 아이디
-                        if (clientList.containsKey(id)) {
-                            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
-                            protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
-                        } else {
-                            clientList.put(id, 0);
-                            protocol = new Protocol(Protocol.PT_MAIN);
-                            protocol.setId(id);
-                        }
-                        outputStream.write(protocol.getPacket());
+                        actionLoginRes(protocol);
                         break;
                     case Protocol.PT_STOCK_REQ:
-                        System.out.println("메뉴판 조회 요청 들어옴");
-                        id = protocol.getId();
-                        protocol = new Protocol(Protocol.PT_STOCK_RES);
-                        protocol.setId(id);
-                        protocol.setMenuName(menu.getFood().toString());
-                        protocol.setMenuPrice(menu.getPrice().toString());
-                        protocol.setMenuAmount(menu.getAmount().toString());
-                        outputStream.write(protocol.getPacket());
+                        actionStockReq(protocol);
                         break;
                     case Protocol.PT_ORDER:
-                        System.out.println("주문 요청 들어옴");
-                        id = protocol.getId();
-                        int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;  // 주문 메뉴의 인덱스
-                        int orderAmount = Integer.parseInt(protocol.getOrderAmount());
-                        int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
-                        int clientPoint = clientList.get(id);
-                        System.out.println(clientPoint);
-                        List<Integer> tmpAmountList = menu.getAmount();
-                        // 재고 부족 시
-                        if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
-                            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
-                            protocol.setId(id);
-                            protocol.setFailedMsg("[관리자] 재고가 부족합니다.");
-                        }
-                        // 잔액 부족
-                        else if (orderTotalPrice > clientPoint) {
-                            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
-                            protocol.setId(id);
-                            protocol.setFailedMsg("[관리자] 잔여 포인트가 부족합니다.");
-                        } else {
-                            tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
-                            clientList.replace(id, clientPoint - orderTotalPrice);
-                            clientPoint = clientList.get(id);
-                            menu.setAmount(tmpAmountList);
-                            protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
-                            protocol.setId(id);
-                            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
-                        }
-                        outputStream.write(protocol.getPacket());
+                        actionOrder(protocol);
                         break;
                     case Protocol.PT_SERVICE_REQ:
-                        System.out.println("서비스 요청 들어옴");
-                        id = protocol.getId();
-                        int serviceType = Integer.parseInt(protocol.getServiceType());
-                        protocol = new Protocol(Protocol.PT_SERVICE_RES);
-                        protocol.setId(id);
-                        if(serviceType == 1){
-                            // 휴지 없음
-                            protocol.setServiceMsg("[관리자] " + id + "님, 휴지 채워 드렸습니다!");
-                        } else if (serviceType == 2) {
-                            // 물컵
-                            protocol.setServiceMsg("[관리자] " + id + "님, 물컵 채워 드렸습니다!");
-                        }
-                        outputStream.write(protocol.getPacket());
+                        actionServiceReq(protocol);
                         break;
                     case Protocol.PT_POINT_REQ:
-                        System.out.println("포인트 충전 요청 들어옴");
-                        id = protocol.getId();
-                        int pointReq = Integer.parseInt(protocol.getClientPoint());
-                        point = clientList.get(id);
-                        clientList.put(id, point + pointReq);
-                        System.out.println(clientList.get(id));
-                        protocol = new Protocol(Protocol.PT_POINT_RES);
-                        protocol.setId(id);
-                        protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
-                        outputStream.write(protocol.getPacket());
+                        actionPointReq(protocol);
                         break;
                     case Protocol.PT_POINT_LOOKUP_REQ:
-                        System.out.println("포인트 조회 요청 들어옴");
-                        id = protocol.getId();
-                        point = clientList.get(id);
-                        protocol = new Protocol(Protocol.PT_LOOKUP_RES);
-                        protocol.setId(id);
-                        protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "point 입니다.");
-                        outputStream.write(protocol.getPacket());
+                        actionPointLookupReq(protocol);
                         break;
                 }
             }
