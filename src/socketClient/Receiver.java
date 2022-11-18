@@ -53,6 +53,15 @@ public class Receiver extends Thread implements Runnable {
         outputStream.write(protocol.getPacket());
     }
 
+    public void actionLoginFailed(Protocol protocol) throws IOException {
+        System.out.println(protocol.getLoginFailedMsg());
+        System.out.print("ID를 입력하세요: ");
+        id = br.readLine();
+        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+        protocol.setId(id);
+        outputStream.write(protocol.getPacket());
+    }
+
     public void actionMain(Protocol protocol) throws IOException {
         id = protocol.getId();
         while (true){
@@ -127,15 +136,6 @@ public class Receiver extends Thread implements Runnable {
             System.out.println();
         }
         System.out.println();
-    }
-
-    public void actionLoginFailed(Protocol protocol) throws IOException {
-        System.out.println(protocol.getLoginFailedMsg());
-        System.out.print("ID를 입력하세요: ");
-        id = br.readLine();
-        protocol = new Protocol(Protocol.PT_LOGIN_RES);
-        protocol.setId(id);
-        outputStream.write(protocol.getPacket());
     }
 
     public void actionStockRes(Protocol protocol) throws IOException {
@@ -216,7 +216,7 @@ public class Receiver extends Thread implements Runnable {
         System.out.println();
     }
 
-    public void actionServiceRes(Protocol protocol) throws IOException{
+    public void actionServiceRes(Protocol protocol) throws IOException {
         System.out.println();
         System.out.println(protocol.getServiceMsg());
         protocol = new Protocol(Protocol.PT_MAIN);
