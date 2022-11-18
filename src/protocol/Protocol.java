@@ -31,6 +31,7 @@ public class Protocol implements Serializable {
     public static final int PT_POINT_RES = 17;
     public static final int PT_POINT_LOOKUP_REQ = 18;
     public static final int PT_LOOKUP_RES = 19;
+    public static final int PT_LOGIN_FAILED = 20;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
@@ -41,6 +42,7 @@ public class Protocol implements Serializable {
 
     // 로그인
     public static final int LEN_LOGIN_ID = 20;
+    public static final int LEN_LOGIN_FAILED_MSG = 100;
 
     // 주문
     public static final int LEN_ORDER_AMOUNT = 20;
@@ -112,6 +114,9 @@ public class Protocol implements Serializable {
                     break;
                 case PT_ORDER_SUCCESS:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_SUCCESS_MSG];
+                    break;
+                case PT_LOGIN_FAILED:
+                    packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_FAILED_MSG];
                     break;
             }
         }
@@ -266,5 +271,15 @@ public class Protocol implements Serializable {
     public void setSuccessMsg(String successMsg) {
         System.arraycopy(successMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE + LEN_LOGIN_ID, successMsg.getBytes().length);
         packet[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + successMsg.getBytes().length] = '\0';
+    }
+
+    // LoginFailedMsg
+    public String getLoginFailedMsg() {
+        return new String(packet, LEN_PROTOCOL_TYPE, LEN_LOGIN_FAILED_MSG).trim();
+    }
+
+    public void setLoginFailedMsg(String loginFailedMsg) {
+        System.arraycopy(loginFailedMsg.getBytes(), 0, packet, LEN_PROTOCOL_TYPE, loginFailedMsg.getBytes().length);
+        packet[LEN_PROTOCOL_TYPE + loginFailedMsg.getBytes().length] = '\0';
     }
 }
