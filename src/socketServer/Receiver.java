@@ -36,21 +36,22 @@ public class Receiver extends Thread implements Runnable {
     public void actionLoginRes(Protocol protocol) throws IOException {
         Pattern pattern = Pattern.compile("[ !@#$%^&*(),.?\":{}|<>]");
         id = protocol.getId();
-        if (pattern.matcher(id).find()) {
-            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
-            protocol.setFailedMsg("[관리자] 공백 및 특수문자는 사용 불가능합니다.");
-        }
         if (id.length() > 15) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
             protocol.setFailedMsg("[관리자] 15글자 이하로 설정해야 합니다.");
         }
-        if (client.checkId(id)) {
+        if (pattern.matcher(id).find()) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
-            protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
+            protocol.setFailedMsg("[관리자] 공백 및 특수문자는 사용 불가능합니다.");
         } else {
-            client.addClient(id);
-            protocol = new Protocol(Protocol.PT_MAIN);
-            protocol.setId(id);
+            if (client.checkId(id)) {
+                protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
+                protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
+            } else {
+                client.addClient(id);
+                protocol = new Protocol(Protocol.PT_MAIN);
+                protocol.setId(id);
+            }
         }
         outputStream.write(protocol.getPacket());
     }
