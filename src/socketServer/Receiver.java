@@ -48,9 +48,15 @@ public class Receiver extends Thread implements Runnable {
                         break;
                     case Protocol.PT_LOGIN_RES:
                         id = protocol.getId();
-                        clientList.put(id, 0);
-                        protocol = new Protocol(Protocol.PT_MAIN);
-                        protocol.setId(id);
+                        // 중복되는 아이디
+                        if (clientList.containsKey(id)) {
+                            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
+                            protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
+                        } else {
+                            clientList.put(id, 0);
+                            protocol = new Protocol(Protocol.PT_MAIN);
+                            protocol.setId(id);
+                        }
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_STOCK_REQ:
