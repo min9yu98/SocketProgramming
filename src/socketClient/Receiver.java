@@ -72,6 +72,7 @@ public class Receiver extends Thread implements Runnable {
             System.out.println("3. 포인트 충전");
             System.out.println("4. 포인트 잔액 조회");
             System.out.println("5. 서비스 종료");
+            System.out.print("> ");
             main = br.readLine();
             if (main.equals("1")) {
                 protocol = new Protocol(Protocol.PT_STOCK_REQ);
@@ -84,7 +85,7 @@ public class Receiver extends Thread implements Runnable {
                     System.out.println("1. 휴지가 부족해요!");
                     System.out.println("2. 물컵이 부족해요!");
                     System.out.println("3. 되돌아가기");
-                    System.out.print("서비스 요청 사항 선택: ");
+                    System.out.print("> ");
                     request = br.readLine();
                     if (Integer.parseInt(request) < 1 || Integer.parseInt(request) > 3) {
                         System.out.println("잘못된 서비스 요청 사항입니다.");
@@ -266,17 +267,12 @@ public class Receiver extends Thread implements Runnable {
                 inputStream.read(buf);  // 서버에서 받은 바이트를 buf에 저장
                 int packetType = buf[0];
                 protocol.setPacket(packetType, buf);  // buf의 값을 protocol에 복사
-                if (packetType == Protocol.PT_EXIT) { // 서비스 종료
+                if (packetType == Protocol.PT_EXIT_RES) { // 서비스 종료
                     System.out.println("클라이언트 종료");
                     socket.close();
                     break;
                 }
                 switch (packetType) {
-                    case Protocol.PT_UNDEFINED: // 비정상적인 유저 처리
-                        clear();
-                        System.out.println("비정상적인 유저입니다.");
-                        socket.close();
-                        break;
                     case Protocol.PT_LOGIN_FAILED:
                         actionLoginFailed(protocol);
                         break;
@@ -305,16 +301,10 @@ public class Receiver extends Thread implements Runnable {
                     case Protocol.PT_ORDER_SUCCESS: // 주문 성공
                         actionOrderSuccess(protocol);
                         break;
-                    case Protocol.PT_EXIT_RES:
-                        socket.close();
-                        break;
                 }
             }
-        } catch (IOException e) {
-//            throw new RuntimeException(e);
-            System.out.println("서비스가 종료되었습니다.");
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.out.println("서버가 종료되었습니다.");
         }
     }
 
