@@ -54,6 +54,14 @@ public class Receiver extends Thread implements Runnable {
                         System.out.println("비정상적인 유저입니다.");
                         socket.close();
                         break;
+                    case Protocol.PT_LOGIN_FAILED:
+                        System.out.println(protocol.getLoginFailedMsg());
+                        System.out.print("ID를 입력하세요: ");
+                        id = br.readLine();
+                        protocol = new Protocol(Protocol.PT_LOGIN_RES);
+                        protocol.setId(id);
+                        outputStream.write(protocol.getPacket());
+                        break;
                     case Protocol.PT_LOGIN_RES: // 로그인 후 인증 완료
                         id = protocol.getId();
                         System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
