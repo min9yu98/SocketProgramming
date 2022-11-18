@@ -32,19 +32,21 @@ public class Receiver extends Thread implements Runnable {
         return strings;
     }
 
-    public void clear() {
+    public void consoleClear() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
-    public void actionLoginRes(Protocol protocol) throws IOException {
-        String id = protocol.getId();
-        System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요.");
-        protocol = new Protocol(Protocol.PT_STOCK_REQ);
-        protocol.setId(id);
-        outputStream.write(protocol.getPacket());
+    public void printLoading() throws InterruptedException {
+        System.out.println();
+        for (int i = 0; i < 3; i++) {
+            System.out.println(". ");
+            Thread.sleep(600);
+        }
+        System.out.println("\n[NOTICE] 주문이 접수되었습니다!");
     }
 
-    public void actionLogReq(Protocol protocol) throws IOException, InterruptedException {
+    public void printHaksik() throws InterruptedException {
+        System.out.println("\n\n");
         Thread.sleep(200);
         System.out.println("   __    _   _             _              _    _   __   __ ");
         Thread.sleep(200);
@@ -56,30 +58,62 @@ public class Receiver extends Thread implements Runnable {
         Thread.sleep(200);
         System.out.println(" \\ \\    | | | |  | (_| |  |   <   \\__ \\  | |  | |\\  \\    / /");
         Thread.sleep(200);
-        System.out.println("  \\_\\   \\_| |_/   \\__,_|  |_|\\_\\  |___/  |_|  \\_| \\_/   /_/\n"); // 로그인
+        System.out.println("  \\_\\   \\_| |_/   \\__,_|  |_|\\_\\  |___/  |_|  \\_| \\_/   /_/     made by GOAT\n\n");
         Thread.sleep(500);
-        System.out.print("ID를 입력하세요: ");
+        System.out.print("[INPUT ID]\n> ");
+    }
+
+    public void printGoodbye() {
+        System.out.println("\n" +
+                " _____                    _ ______              \n" +
+                "|  __ \\                  | || ___ \\             \n" +
+                "| |  \\/  ___    ___    __| || |_/ / _   _   ___ \n" +
+                "| | __  / _ \\  / _ \\  / _` || ___ \\| | | | / _ \\\n" +
+                "| |_\\ \\| (_) || (_) || (_| || |_/ /| |_| ||  __/\n" +
+                " \\____/ \\___/  \\___/  \\__,_|\\____/  \\__, | \\___|\n" +
+                "                                     __/ |      \n" +
+                "                                    |___/       \n");
+    }
+    public void pause() {
+        try {
+            br.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void actionLoginRes(Protocol protocol) throws IOException {
+        String id = protocol.getId();
+        System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요.");
+        protocol = new Protocol(Protocol.PT_STOCK_REQ);
+        protocol.setId(id);
+        outputStream.write(protocol.getPacket());
+    }
+
+    public void actionLogReq(Protocol protocol) throws IOException, InterruptedException {
+        printHaksik();
         String id = br.readLine();
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        clear();
+        consoleClear();
     }
 
     public void actionLoginFailed(Protocol protocol) throws IOException {
         System.out.println(protocol.getLoginFailedMsg());
-        System.out.println("INPUT ID");
-        System.out.print(" > ");
+        System.out.print("INPUT ID\n> ");
+        System.out.println("\n");
         id = br.readLine();
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        clear();
+        consoleClear();
     }
 
     public void actionMain(Protocol protocol) throws IOException {
         id = protocol.getId();
         while (true){
+            consoleClear();
+            System.out.println("[  MAIN  ]");
             System.out.println("[1] 주문");
             System.out.println("[2] 서비스 요청 전송");
             System.out.println("[3] 포인트 충전");
@@ -94,15 +128,16 @@ public class Receiver extends Thread implements Runnable {
                 break;
             } else if (main.equals("2")) {
                 while (true){
-                    clear();
-                    System.out.println("< 서비스 요청 사항 >");
+                    consoleClear();
+                    System.out.println("[  SERVICE  ]");
                     System.out.println("[1] 휴지가 부족해요!");
                     System.out.println("[2] 물컵이 부족해요!");
-                    System.out.println("[3] 되돌아가기");
+                    System.out.println("[3] 뒤로가기");
                     System.out.print("> ");
                     request = br.readLine();
                     if (Integer.parseInt(request) < 1 || Integer.parseInt(request) > 3) {
-                        System.out.println("잘못된 서비스 요청 사항입니다.");
+                        System.out.print("[ERROR] 잘못된 서비스 요청입니다.");
+                        pause();
                         continue;
                     }
                     break;
@@ -119,13 +154,16 @@ public class Receiver extends Thread implements Runnable {
             } else if (main.equals("3")) { // 포인트 충전
                 String inputPoint;
                 while (true) {
-                    System.out.print("충전할 포인트을 입력해주세요(되돌아가기는 q를 눌러주세요): ");
+                    consoleClear();
+                    System.out.println("[  POINT  ]");
+                    System.out.print("충전할 포인트을 입력해주세요(뒤로가기: q)\n> ");
                     inputPoint = br.readLine();
                     if (inputPoint.equals("q")) {
                         break;
                     }
                     if (Integer.parseInt(inputPoint) > 100000) {
-                        System.out.println("최대 10만원까지 충전 가능합니다.");
+                        System.out.print("[ERROR] 최대 10만원까지 충전 가능합니다.");
+                        pause();
                         continue;
                     }
                     break;
@@ -139,7 +177,7 @@ public class Receiver extends Thread implements Runnable {
                 protocol.setId(id);
                 outputStream.write(protocol.getPacket());
                 break;
-            } else if (main.equals("4")) { // 잔여 포인트 조회
+            } else if (main.equals("4")) {
                 protocol = new Protocol(Protocol.PT_POINT_LOOKUP_REQ);
                 protocol.setId(id);
                 outputStream.write(protocol.getPacket());
@@ -150,46 +188,52 @@ public class Receiver extends Thread implements Runnable {
                 outputStream.write(protocol.getPacket());
                 break;
             } else {
-                System.out.println("잘못된 입력입니다.");
+                System.out.print("[ERROR] 잘못된 입력입니다.");
+                pause();
             }
         }
-        clear();
     }
 
-    public void actionStockRes(Protocol protocol) throws IOException {
+    public void actionStockRes(Protocol protocol) throws IOException, InterruptedException {
         id = protocol.getId();
-        System.out.println("[" + protocol.getId() + "님 환영합니다! 메뉴를 골라주세요!]");
-        System.out.println("(되돌아가기는 q를 눌러주세요)");
-        System.out.println("<오늘의 메뉴>");
         String[] menuList = fromString(protocol.getMenuName());
         String[] amountList = fromString(protocol.getMenuAmount());
         String[] priceList = fromString(protocol.getMenuPrice());
-        for (int i = 0; i < menuList.length; i++){
-            System.out.println((i + 1) + ". 메뉴:" + menuList[i] + " 남은 수량: " + amountList[i] + " 가격: " + priceList[i]);
-        }
-        // 메뉴 번호 입력 - 잘못입력시 while문 제대로 입력할 때까지
         while (true){
-            System.out.print("주문할 메뉴의 번호를 입력하세요: ");
+            consoleClear();
+            System.out.println("[  MENU  ]");
+            for (int i = 0; i < menuList.length; i++){
+                System.out.print("[" + (i + 1) + "] ");
+                if (amountList[i].equals("0")) {
+                    System.out.println("SOLD-OUT");
+                } else {
+                    System.out.println("메뉴명: " + menuList[i] + " 남은 수량: " + amountList[i] + " 가격: " + priceList[i]);
+                }
+            }
+            System.out.print("주문할 메뉴의 번호를 입력하세요(주문 취소: q)\n> ");
             menuName = br.readLine();
-            // 메뉴번호 확인
             if (menuName.equals("q")) {
                 protocol = new Protocol(Protocol.PT_MAIN);
                 break;
-            }
-            if (0 >= Integer.parseInt(menuName) || menuList.length < Integer.parseInt(menuName)) {
-                System.out.println("잘못된 주문 번호입니다.");
+            } else if (0 >= Integer.parseInt(menuName) || menuList.length < Integer.parseInt(menuName)) {
+                System.out.print("[ERROR] 잘못된 주문 번호입니다.");
+                pause();
+                continue;
+            } else if (amountList[Integer.parseInt(menuName) - 1].equals("0")) {
+                System.out.print("[NOTICE] 해당 메뉴는 주문이 불가능합니다.");
+                pause();
                 continue;
             }
             while (true){
-                System.out.println("메뉴 수정은 'm'을, 주문 종료는 'q'를 입력해주세요.");
-                System.out.print("수량을 입력하세요 (100개 이하로 입력해주세요): ");
+                System.out.print("수량을 입력하세요(메뉴 수정: m, 주문 취소: q)\n> ");
                 menuAmount = br.readLine();
                 if (menuAmount.equals("m") || menuAmount.equals("q")) {
                     break;
                 }
                 // 수량 확인
                 if (100 < Integer.parseInt(menuAmount) || 0 >= Integer.parseInt(menuAmount)){
-                    System.out.println("잘못된 수량 입니다.");
+                    System.out.print("[ERROR] 최소 1개, 최대 100개 까지 주문 가능합니다.");
+                    pause();
                     continue;
                 }
                 break;
@@ -200,24 +244,25 @@ public class Receiver extends Thread implements Runnable {
                 protocol = new Protocol(Protocol.PT_MAIN);
                 break;
             }
-            String check;
             while (true) {
-                System.out.print("주문을 완료하시겠습니까?(y/n) ");
-                check = br.readLine();
-                if (check.equals("y") || check.equals("n")) {
+                System.out.print("주문을 완료하시겠습니까?(y/n)\n> ");
+                String check = br.readLine();
+                if (check.equals("y")) {
+                    protocol = new Protocol(Protocol.PT_ORDER);
+                    protocol.setOrderFood(menuName);
+                    protocol.setOrderAmount(menuAmount);
+                    int total_order = Integer.parseInt(priceList[Integer.parseInt(menuName) - 1]) * Integer.parseInt(menuAmount);
+                    protocol.setOrderPrice(String.valueOf(total_order));
+                    break;
+                } else if (check.equals("n")) {
+                    System.out.println("[NOTICE] 주문이 취소되었습니다. 2초 후 메인 화면으로 돌아갑니다.");
+                    Thread.sleep(2000);
+                    protocol = new Protocol(Protocol.PT_MAIN);
                     break;
                 } else {
-                    System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                    System.out.print("[ERROR] 입력값이 잘못되었습니다.");
+                    pause();
                 }
-            }
-            if (check.equals("y")) {
-                protocol = new Protocol(Protocol.PT_ORDER);
-                protocol.setOrderFood(menuName);
-                protocol.setOrderAmount(menuAmount);
-                int total_order = Integer.parseInt(priceList[Integer.parseInt(menuName) - 1]) * Integer.parseInt(menuAmount);
-                protocol.setOrderPrice(String.valueOf(total_order));
-            } else {
-                protocol = new Protocol(Protocol.PT_MAIN);
             }
             break;
         }
@@ -226,71 +271,53 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionPointRes(Protocol protocol) throws IOException {
-        System.out.println(protocol.getPointMsg());
+        System.out.print(protocol.getPointMsg());
+        pause();
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        System.out.println();
-        System.out.println();
     }
 
     public void actionServiceRes(Protocol protocol) throws IOException {
-        System.out.println(protocol.getServiceMsg());
+        System.out.print(protocol.getServiceMsg());
+        pause();
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        System.out.println();
-        System.out.println();
     }
 
     public void actionOrderFailed(Protocol protocol) throws IOException {
-        System.out.println(protocol.getFailedMsg());
+        System.out.print(protocol.getFailedMsg());
+        pause();
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        System.out.println();
-        System.out.println();
     }
 
     public void actionOrderSuccess(Protocol protocol) throws IOException, InterruptedException {
-        System.out.println("\n _        _____     ___    ______    _____    _   _    _____   ");
-        Thread.sleep(250);
-        System.out.println("| |      |  _  |   / _ \\   |  _  \\  |_   _|  | \\ | |  |  __ \\");
-        Thread.sleep(250);
-        System.out.println("| |      | | | |  / /_\\ \\  | | | |    | |    |  \\| |  | |  \\/");
-        Thread.sleep(250);
-        System.out.println("| |      | | | |  |  _  |  | | | |    | |    | . ` |  | | __ ");
-        Thread.sleep(250);
-        System.out.println("| |____  \\ \\_/ /  | | | |  | |/ /    _| |_   | |\\  |  | |_\\ \\");
-        Thread.sleep(250);
-        System.out.println("\\_____/   \\___/   \\_| |_/  |___/     \\___/   \\_| \\_/   \\____/ \n\n");
-        Thread.sleep(350);
-        System.out.println(protocol.getSuccessMsg());
-        Thread.sleep(2000);
-        //
+        printLoading();
+        System.out.print(protocol.getSuccessMsg());
+        pause();
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
-        System.out.println();
-        System.out.println();
     }
 
     public void run() {
         try {
-            // 서버로 보내는 스트림
             outputStream = socket.getOutputStream();
             inputStream = socket.getInputStream();
             buf = protocol.getPacket();
-            // 콘솔창에 입력받기 위한 스트림
             in = System.in;
             reader = new InputStreamReader(in);
             br = new BufferedReader(reader);
             while (true) {
-                inputStream.read(buf);  // 서버에서 받은 바이트를 buf에 저장
+                inputStream.read(buf);
                 int packetType = buf[0];
-                protocol.setPacket(packetType, buf);  // buf의 값을 protocol에 복사
-                if (packetType == Protocol.PT_EXIT_RES) { // 서비스 종료
-                    System.out.println("클라이언트 종료");
+                protocol.setPacket(packetType, buf);
+                if (packetType == Protocol.PT_EXIT_RES) {
+                    consoleClear();
+                    printGoodbye();
                     socket.close();
                     break;
                 }
@@ -326,9 +353,7 @@ public class Receiver extends Thread implements Runnable {
                 }
             }
         } catch (Exception e) {
-            System.out.println("에러발생!");
-            System.out.println("서비스를 종료합니다.");
+            System.out.println("[WARNIG] ERROR OCCURED");
         }
     }
-
 }
