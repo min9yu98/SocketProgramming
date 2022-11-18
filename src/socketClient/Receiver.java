@@ -64,7 +64,7 @@ public class Receiver extends Thread implements Runnable {
                         break;
                     case Protocol.PT_LOGIN_RES: // 로그인 후 인증 완료
                         id = protocol.getId();
-                        System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요");
+                        System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요.");
                         protocol = new Protocol(Protocol.PT_STOCK_REQ);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
@@ -177,7 +177,7 @@ public class Receiver extends Thread implements Runnable {
                                 continue;
                             }
                             while (true){
-                                System.out.println("메뉴 수정은 'm'을, 주문 종료는 'q'를 입력해주세요");
+                                System.out.println("메뉴 수정은 'm'을, 주문 종료는 'q'를 입력해주세요.");
                                 System.out.print("수량을 입력하세요 (100개 이하로 입력해주세요): ");
                                 menuAmount = br.readLine();
                                 if (menuAmount.equals("m") || menuAmount.equals("q")) {
@@ -237,16 +237,8 @@ public class Receiver extends Thread implements Runnable {
                         outputStream.write(protocol.getPacket());
                         System.out.println();
                         break;
-                    case Protocol.PT_SHORTAGE_POINT: // 잔액 부족 메시지 처리
-                        // 잔액부족
-                        System.out.println(protocol.getShortagePointMsg());
-                        protocol = new Protocol(Protocol.PT_MAIN);
-                        protocol.setId(id);
-                        outputStream.write(protocol.getPacket());
-                        break;
-                    case Protocol.PT_SHORTAGE_STOCK: // 재고 부족 메시지 처리
-                        // 수량부족
-                        System.out.println(protocol.getShortageStockMsg());
+                    case Protocol.PT_ORDER_FAILED: // 주문 실패
+                        System.out.println(protocol.getFailedMsg());
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
