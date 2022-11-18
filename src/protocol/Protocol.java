@@ -124,27 +124,6 @@ public class Protocol implements Serializable {
         return packet;
     }
 
-//    //로그인후 성공/실패의 결과값을 프로토콜로 부터 추출하여 문자열로 리턴
-//    public String getLoginResult(){
-//        //String의 다음 생성자를 사용 : String(byte[] bytes, int offset, int length)
-//        return new String(packet, LEN_PROTOCOL_TYPE, LEN_LOGIN_RESULT).trim();
-//    }
-//
-//
-//    //String ok를 byte[] 로 만들어서 packet의 프로토콜 타입 바로 뒤에 추가한다.
-//    public void setLoginResult(String ok){
-//        //arraycopy(Object src, int srcPos, Object dest, int destPos, int length)
-//        System.arraycopy(ok.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE, ok.trim().getBytes().length);
-//    }
-
-    public void setProtocolType(int protocolType) {
-        this.protocolType = protocolType;
-    }
-
-    public int getProtocolType() {
-        return protocolType;
-    }
-
     public byte[] getPacket() {
         return packet;
     }
