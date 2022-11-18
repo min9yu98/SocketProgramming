@@ -239,14 +239,14 @@ public class Receiver extends Thread implements Runnable {
                         break;
                     case Protocol.PT_SHORTAGE_POINT: // 잔액 부족 메시지 처리
                         // 잔액부족
-                        System.out.println("잔액이 부족합니다.");
+                        System.out.println(protocol.getShortagePointMsg());
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
                         break;
                     case Protocol.PT_SHORTAGE_STOCK: // 재고 부족 메시지 처리
                         // 수량부족
-                        System.out.println("입력 수량이 재고보다 많습니다.");
+                        System.out.println(protocol.getShortageStockMsg());
                         protocol = new Protocol(Protocol.PT_MAIN);
                         protocol.setId(id);
                         outputStream.write(protocol.getPacket());
