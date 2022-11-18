@@ -44,8 +44,20 @@ public class Receiver extends Thread implements Runnable {
         outputStream.write(protocol.getPacket());
     }
 
-    public void actionLogReq(Protocol protocol) throws IOException {
-        System.out.println("로그인을 해주세요"); // 로그인
+    public void actionLogReq(Protocol protocol) throws IOException, InterruptedException {
+        Thread.sleep(200);
+        System.out.println("   __    _   _             _              _    _   __   __ ");
+        Thread.sleep(200);
+        System.out.println("  / /   | | | |           | |            (_)  | | / /   \\ \\");
+        Thread.sleep(200);
+        System.out.println(" / /    | |_| |    __ _   | | __   ___    _   | |/ /     \\ \\");
+        Thread.sleep(200);
+        System.out.println("< <     |  _  |   / _` |  | |/ /  / __|  | |  |    \\      > >");
+        Thread.sleep(200);
+        System.out.println(" \\ \\    | | | |  | (_| |  |   <   \\__ \\  | |  | |\\  \\    / /");
+        Thread.sleep(200);
+        System.out.println("  \\_\\   \\_| |_/   \\__,_|  |_|\\_\\  |___/  |_|  \\_| \\_/   /_/\n"); // 로그인
+        Thread.sleep(500);
         System.out.print("ID를 입력하세요: ");
         String id = br.readLine();
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
@@ -56,7 +68,8 @@ public class Receiver extends Thread implements Runnable {
 
     public void actionLoginFailed(Protocol protocol) throws IOException {
         System.out.println(protocol.getLoginFailedMsg());
-        System.out.print("ID를 입력하세요: ");
+        System.out.println("INPUT ID");
+        System.out.print(" > ");
         id = br.readLine();
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
@@ -67,11 +80,11 @@ public class Receiver extends Thread implements Runnable {
     public void actionMain(Protocol protocol) throws IOException {
         id = protocol.getId();
         while (true){
-            System.out.println("1. 주문");
-            System.out.println("2. 서비스 요청 전송");
-            System.out.println("3. 포인트 충전");
-            System.out.println("4. 포인트 잔액 조회");
-            System.out.println("5. 서비스 종료");
+            System.out.println("[1] 주문");
+            System.out.println("[2] 서비스 요청 전송");
+            System.out.println("[3] 포인트 충전");
+            System.out.println("[4] 포인트 잔액 조회");
+            System.out.println("[5] 서비스 종료");
             System.out.print("> ");
             main = br.readLine();
             if (main.equals("1")) {
@@ -81,10 +94,11 @@ public class Receiver extends Thread implements Runnable {
                 break;
             } else if (main.equals("2")) {
                 while (true){
+                    clear();
                     System.out.println("< 서비스 요청 사항 >");
-                    System.out.println("1. 휴지가 부족해요!");
-                    System.out.println("2. 물컵이 부족해요!");
-                    System.out.println("3. 되돌아가기");
+                    System.out.println("[1] 휴지가 부족해요!");
+                    System.out.println("[2] 물컵이 부족해요!");
+                    System.out.println("[3] 되돌아가기");
                     System.out.print("> ");
                     request = br.readLine();
                     if (Integer.parseInt(request) < 1 || Integer.parseInt(request) > 3) {
@@ -239,13 +253,21 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionOrderSuccess(Protocol protocol) throws IOException, InterruptedException {
-        for (int i = 0; i < 3; i++) {
-            Thread.sleep(300);
-            System.out.println(".");
-        }
-        Thread.sleep(300);
+        System.out.println("\n _        _____     ___    ______    _____    _   _    _____   ");
+        Thread.sleep(250);
+        System.out.println("| |      |  _  |   / _ \\   |  _  \\  |_   _|  | \\ | |  |  __ \\");
+        Thread.sleep(250);
+        System.out.println("| |      | | | |  / /_\\ \\  | | | |    | |    |  \\| |  | |  \\/");
+        Thread.sleep(250);
+        System.out.println("| |      | | | |  |  _  |  | | | |    | |    | . ` |  | | __ ");
+        Thread.sleep(250);
+        System.out.println("| |____  \\ \\_/ /  | | | |  | |/ /    _| |_   | |\\  |  | |_\\ \\");
+        Thread.sleep(250);
+        System.out.println("\\_____/   \\___/   \\_| |_/  |___/     \\___/   \\_| \\_/   \\____/ \n\n");
+        Thread.sleep(350);
         System.out.println(protocol.getSuccessMsg());
-        // 성공
+        Thread.sleep(2000);
+        //
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
