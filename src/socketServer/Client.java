@@ -37,4 +37,6 @@ public class Client {
     public void subPoint(String id, int point) {
         clientList.replace(id, clientList.get(id) - point);
     }
+
+    public void removeClient(String id) { clientList.remove(id); }
 }

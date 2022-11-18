@@ -65,7 +65,6 @@ public class Server {
                 thread[count].start();
                 count++;
             }
-
         }
         catch (Exception e){
             e.printStackTrace();

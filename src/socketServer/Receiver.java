@@ -127,6 +127,14 @@ public class Receiver extends Thread implements Runnable {
         outputStream.write(protocol.getPacket());
     }
 
+    public void actionExitReq(Protocol protocol) throws IOException {
+        System.out.println("[종료 요청]");
+        id = protocol.getId();
+        client.removeClient(id);
+        protocol = new Protocol(Protocol.PT_EXIT_RES);
+        outputStream.write(protocol.getPacket());
+    }
+
     @Override
     public void run() {
         try {
@@ -141,6 +149,9 @@ public class Receiver extends Thread implements Runnable {
                 int packetType = buf[0];
                 protocol.setPacket(packetType, buf);
                 switch (packetType) {
+                    case Protocol.PT_EXIT_REQ:
+                        actionExitReq(protocol);
+                        break;
                     case Protocol.PT_MAIN:
                         actionMain(protocol);
                         break;

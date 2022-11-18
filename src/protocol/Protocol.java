@@ -19,8 +19,8 @@ public class Protocol implements Serializable {
     public static final int PT_LOGIN_REQ = 4;
     public static final int PT_LOGIN_RES = 5;
     public static final int PT_MAIN = 6;
-    public static final int PT_NORMAL = 7;
-    public static final int PT_ABNORMAL = 8;
+    public static final int PT_EXIT_REQ = 7;
+    public static final int PT_EXIT_RES = 8;
     public static final int PT_START_SERVER = 9;
     public static final int PT_ORDER_SUCCESS = 10;
     public static final int PT_ORDER_FAILED = 11;
@@ -80,6 +80,7 @@ public class Protocol implements Serializable {
     public byte[] getPacket(int protocolType) {
         if (packet == null) {
             switch (protocolType) {
+                case PT_EXIT_REQ:
                 case PT_LOGIN_RES:
                 case PT_MAIN:
                 case PT_STOCK_REQ:
@@ -91,6 +92,7 @@ public class Protocol implements Serializable {
                 case PT_POINT_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
+                case PT_EXIT_RES:
                 case PT_UNDEFINED:
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
