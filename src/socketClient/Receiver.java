@@ -33,7 +33,7 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void clear() {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
     public void actionLoginRes(Protocol protocol) throws IOException {
@@ -51,6 +51,7 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        clear();
     }
 
     public void actionLoginFailed(Protocol protocol) throws IOException {
@@ -60,6 +61,7 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        clear();
     }
 
     public void actionMain(Protocol protocol) throws IOException {
@@ -128,14 +130,15 @@ public class Receiver extends Thread implements Runnable {
                 outputStream.write(protocol.getPacket());
                 break;
             } else if (main.equals("5")) {
-                socket.close();
+                protocol = new Protocol(Protocol.PT_EXIT_REQ);
+                protocol.setId(id);
+                outputStream.write(protocol.getPacket());
                 break;
             } else {
                 System.out.println("잘못된 입력입니다.");
             }
-            System.out.println();
         }
-        System.out.println();
+        clear();
     }
 
     public void actionStockRes(Protocol protocol) throws IOException {
@@ -184,7 +187,7 @@ public class Receiver extends Thread implements Runnable {
             }
             String check;
             while (true) {
-                System.out.print("주문을 완료하시겠습니까?(y / n) ");
+                System.out.print("주문을 완료하시겠습니까?(y/n) ");
                 check = br.readLine();
                 if (check.equals("y") || check.equals("n")) {
                     break;
@@ -208,20 +211,20 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionPointRes(Protocol protocol) throws IOException {
-        System.out.println();
         System.out.println(protocol.getPointMsg());
-        protocol = new Protocol(Protocol.PT_MAIN); // 찾았다 시발련
+        protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        System.out.println();
         System.out.println();
     }
 
     public void actionServiceRes(Protocol protocol) throws IOException {
-        System.out.println();
         System.out.println(protocol.getServiceMsg());
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        System.out.println();
         System.out.println();
     }
 
@@ -230,6 +233,8 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        System.out.println();
+        System.out.println();
     }
 
     public void actionOrderSuccess(Protocol protocol) throws IOException, InterruptedException {
@@ -243,6 +248,7 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_MAIN);
         protocol.setId(id);
         outputStream.write(protocol.getPacket());
+        System.out.println();
         System.out.println();
     }
 
@@ -267,6 +273,7 @@ public class Receiver extends Thread implements Runnable {
                 }
                 switch (packetType) {
                     case Protocol.PT_UNDEFINED: // 비정상적인 유저 처리
+                        clear();
                         System.out.println("비정상적인 유저입니다.");
                         socket.close();
                         break;
@@ -297,6 +304,9 @@ public class Receiver extends Thread implements Runnable {
                         break;
                     case Protocol.PT_ORDER_SUCCESS: // 주문 성공
                         actionOrderSuccess(protocol);
+                        break;
+                    case Protocol.PT_EXIT_RES:
+                        socket.close();
                         break;
                 }
             }
