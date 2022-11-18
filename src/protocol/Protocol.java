@@ -38,7 +38,7 @@ public class Protocol implements Serializable {
 
 
     // 로그인
-    public static final int LEN_LOGIN_ID = 16;
+    public static final int LEN_LOGIN_ID = 20;
     public static final int LEN_LOGIN_FAILED_MSG = 100;
 
     // 주문
@@ -159,12 +159,11 @@ public class Protocol implements Serializable {
 
     // ID
     public String getId() {
-        //String(byte[] bytes, int offset, int length)
         return new String(packet, LEN_PROTOCOL_TYPE, LEN_LOGIN_ID).trim();
     }
 
     public void setId(String id) {
-        System.arraycopy(id.trim().getBytes(), 0, packet, LEN_PROTOCOL_TYPE, id.trim().getBytes().length);
+        System.arraycopy(id.getBytes(), 0, packet, LEN_PROTOCOL_TYPE, id.getBytes().length);
     }
 
     // MenuName
