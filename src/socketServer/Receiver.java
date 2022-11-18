@@ -46,7 +46,7 @@ public class Receiver extends Thread implements Runnable {
         } else {
             if (client.checkId(id)) {
                 protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
-                protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
+                protocol.setLoginFailedMsg("[관리자] 이미 가입된 아이디입니다.");
             } else {
                 client.addClient(id);
                 protocol = new Protocol(Protocol.PT_MAIN);
@@ -80,13 +80,13 @@ public class Receiver extends Thread implements Runnable {
         if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
             protocol = new Protocol(Protocol.PT_ORDER_FAILED);
             protocol.setId(id);
-            protocol.setFailedMsg("[관리자] 재고가 부족합니다.");
+            protocol.setFailedMsg("[관리자] 주문하신 메뉴의 재고가 부족합니다.");
         }
         // 잔액 부족
         else if (orderTotalPrice > clientPoint) {
             protocol = new Protocol(Protocol.PT_ORDER_FAILED);
             protocol.setId(id);
-            protocol.setFailedMsg("[관리자] 잔여 포인트가 부족합니다.");
+            protocol.setFailedMsg("[관리자] 포인트가 부족합니다.");
         } else {
             tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
             client.subPoint(id, orderTotalPrice);
@@ -94,7 +94,7 @@ public class Receiver extends Thread implements Runnable {
             menu.setAmount(tmpAmountList);
             protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
             protocol.setId(id);
-            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + client.getPoint(id) + "point");
+            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트는 " + client.getPoint(id) + "point 압나다.");
         }
         outputStream.write(protocol.getPacket());
     }
@@ -123,7 +123,7 @@ public class Receiver extends Thread implements Runnable {
         client.setPoint(id, pointReq);
         protocol = new Protocol(Protocol.PT_POINT_RES);
         protocol.setId(id);
-        protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
+        protocol.setPointMsg("[관리자] " + id + "님에게 " + pointReq + "point 충전되었습니다.");
         outputStream.write(protocol.getPacket());
     }
 
