@@ -80,13 +80,15 @@ public class Receiver extends Thread implements Runnable {
                         List<Integer> tmpAmountList = menu.getAmount();
                         // 재고 부족 시
                         if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
-                            protocol = new Protocol(Protocol.PT_SHORTAGE_STOCK);
+                            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
                             protocol.setId(id);
+                            protocol.setFailedMsg("[관리자] 재고가 부족합니다.");
                         }
                         // 잔액 부족
                         else if (orderTotalPrice > clientPoint) {
-                            protocol = new Protocol(Protocol.PT_SHORTAGE_POINT);
+                            protocol = new Protocol(Protocol.PT_ORDER_FAILED);
                             protocol.setId(id);
+                            protocol.setFailedMsg("[관리자] 잔여 포인트가 부족합니다.");
                         } else {
                             tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
                             clientList.replace(id, clientPoint - orderTotalPrice);
