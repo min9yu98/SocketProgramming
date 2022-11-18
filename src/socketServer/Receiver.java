@@ -17,12 +17,13 @@ public class Receiver extends Thread implements Runnable {
     InputStream inputStream = null;
     Socket socket = null;
     Menu menu = null;
+    Client client = null;
     String id;
     int point;
-    HashMap<String, Integer> clientList = new HashMap<String, Integer>();
-    public Receiver(Socket socket, Menu menu) {
+    public Receiver(Socket socket, Menu menu, Client client) {
         this.socket = socket;
         this.menu = menu;
+        this.client = client;
     }
 
     public void actionMain(Protocol protocol) throws IOException {
@@ -34,11 +35,11 @@ public class Receiver extends Thread implements Runnable {
     public void actionLoginRes(Protocol protocol) throws IOException {
         id = protocol.getId();
         // 중복되는 아이디
-        if (clientList.containsKey(id)) {
+        if (client.checkId(id)) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
             protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");
         } else {
-            clientList.put(id, 0);
+            client.addClient(id);
             protocol = new Protocol(Protocol.PT_MAIN);
             protocol.setId(id);
         }
@@ -62,7 +63,7 @@ public class Receiver extends Thread implements Runnable {
         int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;
         int orderAmount = Integer.parseInt(protocol.getOrderAmount());
         int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
-        int clientPoint = clientList.get(id);
+        int clientPoint = client.getPoint(id);
         System.out.println(clientPoint);
         List<Integer> tmpAmountList = menu.getAmount();
         // 재고 부족 시
@@ -78,12 +79,12 @@ public class Receiver extends Thread implements Runnable {
             protocol.setFailedMsg("[관리자] 잔여 포인트가 부족합니다.");
         } else {
             tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
-            clientList.replace(id, clientPoint - orderTotalPrice);
-            clientPoint = clientList.get(id);
+            client.subPoint(id, orderTotalPrice);
+            clientPoint = client.getPoint(id);
             menu.setAmount(tmpAmountList);
             protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
             protocol.setId(id);
-            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + clientList.get(id) + "point");
+            protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트: " + client.getPoint(id) + "point");
         }
         outputStream.write(protocol.getPacket());
     }
@@ -108,9 +109,8 @@ public class Receiver extends Thread implements Runnable {
         System.out.println("[포인트 충전 요청]");
         id = protocol.getId();
         int pointReq = Integer.parseInt(protocol.getClientPoint());
-        point = clientList.get(id);
-        clientList.put(id, point + pointReq);
-        System.out.println(clientList.get(id));
+        point = client.getPoint(id);
+        client.setPoint(id, pointReq);
         protocol = new Protocol(Protocol.PT_POINT_RES);
         protocol.setId(id);
         protocol.setPointMsg(pointReq + "point가 충전되었습니다.");
@@ -120,7 +120,7 @@ public class Receiver extends Thread implements Runnable {
     public void actionPointLookupReq(Protocol protocol) throws IOException {
         System.out.println("[포인트 조회 요청]");
         id = protocol.getId();
-        point = clientList.get(id);
+        point = client.getPoint(id);
         protocol = new Protocol(Protocol.PT_LOOKUP_RES);
         protocol.setId(id);
         protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "point 입니다.");

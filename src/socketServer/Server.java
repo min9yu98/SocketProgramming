@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class Server {
     private final static int SERVER_PORT = 1234;
     Menu menu = null;
+    static Client client = null;
     public static void main(String args[]){
         try {
             //서버 소켓 생성
@@ -50,6 +51,7 @@ public class Server {
                 menu.setFood(menuNameList);
                 menu.setPrice(menuPriceList);
                 menu.setAmount(menuAmountList);
+                client = Client.getInstance();
                 System.out.println(".\n.\n.\n.\n.\n.\n.\n.\n.\n.\n메뉴 정보 저장 완료!");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -59,7 +61,7 @@ public class Server {
             Thread[] thread = new Thread[10];
             while (true) {
                 Socket socket = serverSocket.accept();
-                thread[count] = new Thread(new Receiver(socket, menu));
+                thread[count] = new Thread(new Receiver(socket, menu, client));
                 thread[count].start();
                 count++;
             }
