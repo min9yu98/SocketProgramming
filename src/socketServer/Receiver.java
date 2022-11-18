@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import static java.lang.System.in;
 import static java.lang.System.out;
@@ -33,8 +34,16 @@ public class Receiver extends Thread implements Runnable {
         outputStream.write(protocol.getPacket());
     }
     public void actionLoginRes(Protocol protocol) throws IOException {
+        Pattern pattern = Pattern.compile("[ !@#$%^&*(),.?\":{}|<>]");
         id = protocol.getId();
-        // 중복되는 아이디
+        if (pattern.matcher(id).find()) {
+            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
+            protocol.setFailedMsg("[관리자] 공백 및 특수문자는 사용 불가능합니다.");
+        }
+        if (id.length() > 15) {
+            protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
+            protocol.setFailedMsg("[관리자] 15글자 이하로 설정해야 합니다.");
+        }
         if (client.checkId(id)) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
             protocol.setLoginFailedMsg("[관리자] 이미 존재하는 아이디입니다.");

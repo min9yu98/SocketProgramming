@@ -11,8 +11,6 @@ import java.util.List;
 
 public class Protocol implements Serializable {
     // 프로토콜 타입에 대한 변수
-    public static final int PT_UNDEFINED = -1;   //프로토콜이 지정되어 있지 않을 경우에
-    public static final int PT_EXIT = 0;
     public static final int PT_ORDER = 1;
     public static final int PT_STOCK_RES = 2;
     public static final int PT_STOCK_REQ = 3;
@@ -40,7 +38,7 @@ public class Protocol implements Serializable {
 
 
     // 로그인
-    public static final int LEN_LOGIN_ID = 20;
+    public static final int LEN_LOGIN_ID = 16;
     public static final int LEN_LOGIN_FAILED_MSG = 100;
 
     // 주문
@@ -93,7 +91,6 @@ public class Protocol implements Serializable {
                     packet = new byte[LEN_PROTOCOL_TYPE + LEN_LOGIN_ID + LEN_POINT_MSG];
                     break;
                 case PT_EXIT_RES:
-                case PT_UNDEFINED:
                 case PT_LOGIN_REQ:
                     packet = new byte[LEN_PROTOCOL_TYPE];
                     break;
