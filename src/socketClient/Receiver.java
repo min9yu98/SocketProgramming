@@ -304,7 +304,8 @@ public class Receiver extends Thread implements Runnable {
                 }
             }
         } catch (Exception e) {
-            System.out.println("서버가 종료되었습니다.");
+            System.out.println("에러발생!");
+            System.out.println("서비스를 종료합니다.");
         }
     }
 
