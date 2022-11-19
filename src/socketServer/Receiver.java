@@ -35,13 +35,13 @@ public class Receiver extends Thread implements Runnable {
         outputStream.write(protocol.getPacket());
     }
     public void actionLoginRes(Protocol protocol) throws IOException {
-        Pattern pattern = Pattern.compile("[ !@#$%^&*(),.?\":{}|<>]");
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9]*$"); //영문자만
         id = protocol.getId();
         if (id.length() > 15) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
             protocol.setFailedMsg("[관리자] 15글자 이하로 설정해야 합니다.");
         }
-        if (pattern.matcher(id).find()) {
+        if (!pattern.matcher(id).find()) {
             protocol = new Protocol(Protocol.PT_LOGIN_FAILED);
             protocol.setFailedMsg("[관리자] 공백 및 특수문자는 사용 불가능합니다.");
         } else {
