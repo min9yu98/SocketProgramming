@@ -1,5 +1,8 @@
 package socketServer;
 
+import socketServer.model.Client;
+import socketServer.model.Menu;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

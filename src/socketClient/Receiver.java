@@ -74,6 +74,7 @@ public class Receiver extends Thread implements Runnable {
                 "                                     __/ |      \n" +
                 "                                    |___/       \n");
     }
+
     public void pause() {
         try {
             br.read();
@@ -81,6 +82,7 @@ public class Receiver extends Thread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public void actionLoginRes(Protocol protocol) throws IOException {
         String id = protocol.getId();
         System.out.println(id + " " + "환영합니다! 메뉴를 골라주세요.");
@@ -207,7 +209,7 @@ public class Receiver extends Thread implements Runnable {
                 if (amountList[i].equals("0")) {
                     System.out.println("SOLD-OUT");
                 } else {
-                    System.out.println("메뉴명: " + menuList[i] + " 남은 수량: " + amountList[i] + " 가격: " + priceList[i]);
+                    System.out.println("메뉴명: " + menuList[i] + " | 남은 수량: " + amountList[i] + " | 가격: " + priceList[i]);
                 }
             }
             System.out.print("주문할 메뉴의 번호를 입력하세요(주문 취소: q)\n> ");
