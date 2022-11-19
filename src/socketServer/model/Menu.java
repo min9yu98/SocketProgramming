@@ -1,4 +1,4 @@
-package socketServer;
+package socketServer.model;
 
 import lombok.Getter;
 import lombok.Setter;

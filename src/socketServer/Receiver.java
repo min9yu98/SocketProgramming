@@ -1,30 +1,31 @@
 package socketServer;
 
 import protocol.Protocol;
+import socketServer.model.Client;
+import socketServer.model.Menu;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.regex.Pattern;
-
-import static java.lang.System.in;
-import static java.lang.System.out;
 
 public class Receiver extends Thread implements Runnable {
     OutputStream outputStream = null;
     InputStream inputStream = null;
     Socket socket = null;
-    Menu menu = null;
+    socketServer.model.Menu menu = null;
     Client client = null;
-    String id;
-    int point;
+    String id = null;
+    int point = 0;
+
     public Receiver(Socket socket, Menu menu, Client client) {
         this.socket = socket;
         this.menu = menu;
         this.client = client;
+    }
+
+    public void consoleClear() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
     public void actionMain(Protocol protocol) throws IOException {
@@ -57,7 +58,6 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionStockReq(Protocol protocol) throws IOException {
-        System.out.println("[메뉴판 조회 요청]");
         id = protocol.getId();
         protocol = new Protocol(Protocol.PT_STOCK_RES);
         protocol.setId(id);
@@ -68,13 +68,11 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionOrder(Protocol protocol) throws IOException {
-        System.out.println("[주문 요청]");
         id = protocol.getId();
         int orderFoodIdx = Integer.parseInt(protocol.getOrderFood()) - 1;
         int orderAmount = Integer.parseInt(protocol.getOrderAmount());
         int orderTotalPrice = Integer.parseInt(protocol.getOrderPrice());
         int clientPoint = client.getPoint(id);
-        System.out.println(clientPoint);
         List<Integer> tmpAmountList = menu.getAmount();
         // 재고 부족 시
         if (orderAmount > tmpAmountList.get(orderFoodIdx)) {
@@ -90,17 +88,18 @@ public class Receiver extends Thread implements Runnable {
         } else {
             tmpAmountList.set(orderFoodIdx, tmpAmountList.get(orderFoodIdx) - orderAmount);
             client.subPoint(id, orderTotalPrice);
-            clientPoint = client.getPoint(id);
             menu.setAmount(tmpAmountList);
             protocol = new Protocol(Protocol.PT_ORDER_SUCCESS);
             protocol.setId(id);
             protocol.setSuccessMsg("[관리자] " + id + "님의 잔여 포인트는 " + client.getPoint(id) + "point 압나다.");
+            consoleClear();
+            System.out.println("[  RECEIPT  ]");
+            System.out.println("주문자: " + id + " | 주문 메뉴: " + menu.getFood().get(orderFoodIdx) + " | 수량: " + orderAmount + " | 총가격: " + orderTotalPrice);
         }
         outputStream.write(protocol.getPacket());
     }
 
     public void actionServiceReq(Protocol protocol) throws IOException {
-        System.out.println("[서비스 요청]");
         id = protocol.getId();
         int serviceType = Integer.parseInt(protocol.getServiceType());
         protocol = new Protocol(Protocol.PT_SERVICE_RES);
@@ -116,7 +115,6 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionPointReq(Protocol protocol) throws IOException {
-        System.out.println("[포인트 충전 요청]");
         id = protocol.getId();
         int pointReq = Integer.parseInt(protocol.getClientPoint());
         point = client.getPoint(id);
@@ -128,7 +126,6 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionPointLookupReq(Protocol protocol) throws IOException {
-        System.out.println("[포인트 조회 요청]");
         id = protocol.getId();
         point = client.getPoint(id);
         protocol = new Protocol(Protocol.PT_LOOKUP_RES);
@@ -138,7 +135,6 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void actionExitReq(Protocol protocol) throws IOException {
-        System.out.println("[종료 요청]");
         id = protocol.getId();
         client.removeClient(id);
         protocol = new Protocol(Protocol.PT_EXIT_RES);

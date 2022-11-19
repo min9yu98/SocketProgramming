@@ -29,6 +29,8 @@ public class Protocol implements Serializable {
     public static final int PT_POINT_LOOKUP_REQ = 16;
     public static final int PT_LOOKUP_RES = 17;
     public static final int PT_LOGIN_FAILED = 18;
+    public static final int PT_HISTORY_REQ = 19;
+    public static final int PT_HISTORY_RES = 20;
 
     // 프로토콜 종류의 길이
     public static final int LEN_PROTOCOL_TYPE = 1;
@@ -48,7 +50,6 @@ public class Protocol implements Serializable {
     public static final int LEN_CLIENT_POINT = 20;
     public static final int LEN_SUCCESS_MSG = 100;
     public static final int LEN_FAILED_MSG = 100;
-
     // 재고 현황
     public static final int LEN_STOCK_MENU = 50;
     public static final int LEN_STOCK_PRICE = 50;
