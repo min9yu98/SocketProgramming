@@ -103,7 +103,6 @@ public class Receiver extends Thread implements Runnable {
     public void actionLoginFailed(Protocol protocol) throws IOException {
         System.out.println(protocol.getLoginFailedMsg());
         System.out.print("INPUT ID\n> ");
-        System.out.println("\n");
         id = br.readLine();
         protocol = new Protocol(Protocol.PT_LOGIN_RES);
         protocol.setId(id);
