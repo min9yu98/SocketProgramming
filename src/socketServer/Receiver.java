@@ -25,7 +25,7 @@ public class Receiver extends Thread implements Runnable {
     }
 
     public void consoleClear() {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("\n");
     }
 
     public void actionMain(Protocol protocol) throws IOException {
@@ -111,6 +111,8 @@ public class Receiver extends Thread implements Runnable {
             // 물컵
             protocol.setServiceMsg("[관리자] " + id + "님, 물컵 채워 드렸습니다!");
         }
+        consoleClear();
+        System.out.println("[" + id + "]" + " 서비스 요청");
         outputStream.write(protocol.getPacket());
     }
 
@@ -122,6 +124,8 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_POINT_RES);
         protocol.setId(id);
         protocol.setPointMsg("[관리자] " + id + "님에게 " + pointReq + "point 충전되었습니다.");
+        consoleClear();
+        System.out.println("[" + id + "]" + " 포인트 충전 요청");
         outputStream.write(protocol.getPacket());
     }
 
@@ -131,6 +135,8 @@ public class Receiver extends Thread implements Runnable {
         protocol = new Protocol(Protocol.PT_LOOKUP_RES);
         protocol.setId(id);
         protocol.setPointMsg("[관리자] " + id + "님의 현재 포인트는 " + point + "point 입니다.");
+        consoleClear();
+        System.out.println("[" + id + "]" + " 포인트 조회 요청");
         outputStream.write(protocol.getPacket());
     }
 
