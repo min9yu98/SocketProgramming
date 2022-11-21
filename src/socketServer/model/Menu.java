@@ -3,13 +3,13 @@ package socketServer.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
-public class Menu implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Menu {
     private List<String> food;
     private List<Integer> amount;
     private List<Integer> price;
