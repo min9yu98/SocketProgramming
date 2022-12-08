@@ -12,7 +12,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Server {
-    private final static int SERVER_PORT = 1234;
+    private final static int SERVER_PORT = port ;
     Menu menu = null;
     static Client client = null;
     public static void main(String args[]){
